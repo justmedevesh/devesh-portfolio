@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 
-const links = ['About', 'Skills', 'Experience', 'Education', 'Contact'];
+const links = ['About', 'Skills', 'Experience', 'Education', 'Projects', 'Contact'];
 
 export default function Navbar() {
   const [scrolled, setScrolled] = useState(false);
@@ -34,7 +34,7 @@ export default function Navbar() {
       <div style={{ fontFamily: 'var(--mono)', fontSize: '0.82rem', color: 'var(--cyan)', letterSpacing: '0.12em' }}>
         DKM <span style={{ color: 'var(--muted)' }}>// data_scientist.py</span>
       </div>
-      <div style={{ display: 'flex', gap: '2rem' }}>
+      <div style={{ display: 'flex', gap: '1.4rem', flexWrap: 'wrap' }}>
         {links.map((link) => (
           <button
             key={link}

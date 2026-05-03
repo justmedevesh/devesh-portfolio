@@ -99,3 +99,24 @@ export const education = [
     current: false,
   },
 ];
+
+export const projects = [
+  {
+    title: 'Project Title Here',
+    description:
+      'A short description of the project. What problem it solves, what tech it uses, and what you learned.',
+    tags: ['Python', 'Machine Learning', 'Flask'],
+    github: 'https://github.com/justmedevesh',
+    live: '',          // leave empty if no live demo
+    featured: true,    // highlights the card with a cyan accent
+  },
+  // ── Add more projects below ──────────────────────────────
+  // {
+  //   title: 'Another Project',
+  //   description: 'Description here...',
+  //   tags: ['React', 'Node.js'],
+  //   github: 'https://github.com/justmedevesh/...',
+  //   live: 'https://...',
+  //   featured: false,
+  // },
+];
