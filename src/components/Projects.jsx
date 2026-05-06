@@ -1,6 +1,7 @@
+import { useState, useEffect } from 'react';
 import SectionWrapper, { SectionLabel, SectionTitle } from './SectionWrapper';
 import { useReveal } from './useReveal';
-import { projects } from '../data/portfolio';
+import { getAllProjects } from '../data/projectStore';
 
 function ProjectCard({ project, index, visible }) {
   const isFeatured = project.featured;
@@ -157,6 +158,19 @@ function ProjectCard({ project, index, visible }) {
 
 export default function Projects() {
   const { ref, visible } = useReveal();
+  const [projects, setProjects] = useState([]);
+
+  useEffect(() => {
+    // Initial fetch from Firestore
+    getAllProjects().then(setProjects).catch(console.error);
+
+    // Re-fetch when storage changes (e.g. from admin in another tab)
+    function onStorage() {
+      getAllProjects().then(setProjects).catch(console.error);
+    }
+    window.addEventListener('storage', onStorage);
+    return () => window.removeEventListener('storage', onStorage);
+  }, []);
 
   return (
     <SectionWrapper id="projects" bg="var(--bg2)">
@@ -172,7 +186,7 @@ export default function Projects() {
       >
         {projects.map((project, i) => (
           <ProjectCard
-            key={project.title}
+            key={project.id || project.title}
             project={project}
             index={i}
             visible={visible}

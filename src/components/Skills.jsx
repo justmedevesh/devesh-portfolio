@@ -1,4 +1,4 @@
-import { useRef, useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import SectionWrapper, { SectionLabel, SectionTitle } from './SectionWrapper';
 import { useReveal } from './useReveal';
 import { skills } from '../data/portfolio';

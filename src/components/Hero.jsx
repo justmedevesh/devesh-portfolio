@@ -113,7 +113,7 @@ export default function Hero() {
             fontFamily: 'var(--mono)', fontSize: '0.72rem',
             letterSpacing: '0.1em', padding: '0.85rem 2rem',
             background: 'var(--cyan)', color: 'var(--bg)',
-            border: 'none', cursor: 'none', textTransform: 'uppercase',
+            border: 'none', cursor: 'pointer', textTransform: 'uppercase',
             fontWeight: 700, transition: 'transform 0.2s, box-shadow 0.2s',
           }}
           onMouseEnter={e => { e.target.style.transform = 'translateY(-2px)'; e.target.style.boxShadow = '0 0 24px rgba(0,229,255,0.4)'; }}
@@ -127,7 +127,7 @@ export default function Hero() {
             fontFamily: 'var(--mono)', fontSize: '0.72rem',
             letterSpacing: '0.1em', padding: '0.85rem 2rem',
             background: 'transparent', color: 'var(--cyan)',
-            border: '1px solid var(--cyan)', cursor: 'none',
+            border: '1px solid var(--cyan)', cursor: 'pointer',
             textTransform: 'uppercase', transition: 'background 0.2s',
           }}
           onMouseEnter={e => e.target.style.background = 'rgba(0,229,255,0.08)'}

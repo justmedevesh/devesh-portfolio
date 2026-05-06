@@ -102,21 +102,22 @@ export const education = [
 
 export const projects = [
   {
-    title: 'Project Title Here',
+    title: 'Job Market Analysis & Recommendation System',
     description:
-      'A short description of the project. What problem it solves, what tech it uses, and what you learned.',
-    tags: ['Python', 'Machine Learning', 'Flask'],
+      'An end-to-end data science project that analyses job market trends and provides personalised job recommendations. Features interactive dashboards, salary insights, and ML-powered matching.',
+    tags: ['Python', 'Streamlit', 'Machine Learning', 'Data Analysis', 'NLP'],
     github: 'https://github.com/justmedevesh',
-    live: '',          // leave empty if no live demo
-    featured: true,    // highlights the card with a cyan accent
+    live: 'https://jobmarketanalysisandrecommendationsystem.streamlit.app',
+    featured: true,
+  },
+  {
+    title: 'Disaster Tweet Classifier',
+    description:
+      'An NLP-powered classifier that determines whether a tweet is about a real disaster or not. Built using natural language processing techniques and deployed as an interactive Streamlit web app.',
+    tags: ['Python', 'NLP', 'Streamlit', 'Deep Learning', 'Text Classification'],
+    github: 'https://github.com/justmedevesh',
+    live: 'https://justmedevesh-disaster-tweet-classifier-app-ydgidq.streamlit.app',
+    featured: true,
   },
   // ── Add more projects below ──────────────────────────────
-  // {
-  //   title: 'Another Project',
-  //   description: 'Description here...',
-  //   tags: ['React', 'Node.js'],
-  //   github: 'https://github.com/justmedevesh/...',
-  //   live: 'https://...',
-  //   featured: false,
-  // },
 ];

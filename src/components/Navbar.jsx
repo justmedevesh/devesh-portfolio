@@ -42,7 +42,7 @@ export default function Navbar() {
             onClick={() => scrollTo(link)}
             style={{
               fontFamily: 'var(--mono)', fontSize: '0.7rem', color: 'var(--muted)',
-              background: 'none', border: 'none', cursor: 'none',
+              background: 'none', border: 'none', cursor: 'pointer',
               letterSpacing: '0.12em', textTransform: 'uppercase',
               transition: 'color 0.2s', padding: '0.2rem 0',
             }}

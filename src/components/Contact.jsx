@@ -58,7 +58,7 @@ export default function Contact() {
 
   return (
     <SectionWrapper id="contact" bg="var(--bg)" style={{ minHeight: '70vh' }}>
-      <SectionLabel>// 05 — contact.sh</SectionLabel>
+      <SectionLabel>// 06 — contact.sh</SectionLabel>
       <SectionTitle>Get In Touch</SectionTitle>
       <div
         ref={ref}
