@@ -281,6 +281,18 @@
   color: var(--neon);
 }
 
+.badge-draft {
+  background: rgba(255, 193, 7, 0.1);
+  border: 1px solid rgba(255, 193, 7, 0.35);
+  color: #ffc107;
+}
+
+.badge-published {
+  background: rgba(57, 255, 20, 0.1);
+  border: 1px solid rgba(57, 255, 20, 0.3);
+  color: var(--neon);
+}
+
 .admin-project-actions {
   display: flex;
   gap: 0.5rem;
@@ -655,6 +667,38 @@
   margin-bottom: 1rem;
 }
 
+/* ── Tab switcher ────────────────────────────────── */
+
+.admin-tabs {
+  display: flex;
+  gap: 0;
+  margin-bottom: 2rem;
+  border-bottom: 1px solid var(--border);
+}
+
+.admin-tab {
+  font-family: var(--mono);
+  font-size: 0.68rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  padding: 0.8rem 1.5rem;
+  background: none;
+  border: none;
+  border-bottom: 2px solid transparent;
+  color: var(--muted);
+  cursor: pointer;
+  transition: color 0.2s, border-color 0.2s;
+}
+
+.admin-tab:hover {
+  color: var(--text);
+}
+
+.admin-tab.active {
+  color: var(--cyan);
+  border-bottom-color: var(--cyan);
+}
+
 /* ── Responsive ──────────────────────────────────── */
 
 @media (max-width: 640px) {
@@ -663,4 +707,6 @@
   .form-row { grid-template-columns: 1fr; }
   .admin-project-row { grid-template-columns: 1fr; }
   .admin-project-actions { justify-content: flex-end; }
+  .admin-tabs { overflow-x: auto; }
+  .admin-tab { padding: 0.6rem 1rem; font-size: 0.6rem; white-space: nowrap; }
 }

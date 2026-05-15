@@ -1,5 +1,7 @@
 import { useEffect, useRef } from 'react';
 
+const INTERACTIVE_SELECTOR = 'button, a, .skill-card, .edu-card, .contact-item, .nav-link, .project-card';
+
 export default function Cursor() {
   const dotRef = useRef(null);
   const ringRef = useRef(null);
@@ -17,12 +19,13 @@ export default function Cursor() {
       dot.style.top = mouseY + 'px';
     };
 
+    let rafId;
     const animate = () => {
+      rafId = requestAnimationFrame(animate);
       ringX += (mouseX - ringX) * 0.12;
       ringY += (mouseY - ringY) * 0.12;
       ring.style.left = ringX + 'px';
       ring.style.top = ringY + 'px';
-      requestAnimationFrame(animate);
     };
 
     const onEnter = () => {
@@ -37,17 +40,36 @@ export default function Cursor() {
       dot.style.transform = 'translate(-50%,-50%) scale(1)';
     };
 
-    document.addEventListener('mousemove', onMove);
-    const interactives = document.querySelectorAll('button, a, .skill-card, .edu-card, .contact-item, .nav-link');
-    interactives.forEach(el => {
+    // Track attached elements so we can clean up
+    const attached = new Set();
+
+    function attachListeners(el) {
+      if (attached.has(el)) return;
       el.addEventListener('mouseenter', onEnter);
       el.addEventListener('mouseleave', onLeave);
-    });
+      attached.add(el);
+    }
 
-    const raf = requestAnimationFrame(animate);
+    function scanAndAttach() {
+      document.querySelectorAll(INTERACTIVE_SELECTOR).forEach(attachListeners);
+    }
+
+    document.addEventListener('mousemove', onMove);
+    scanAndAttach();
+    animate();
+
+    // Watch for dynamically added elements (e.g. projects loaded from Firebase)
+    const observer = new MutationObserver(scanAndAttach);
+    observer.observe(document.body, { childList: true, subtree: true });
+
     return () => {
       document.removeEventListener('mousemove', onMove);
-      cancelAnimationFrame(raf);
+      cancelAnimationFrame(rafId);
+      observer.disconnect();
+      attached.forEach(el => {
+        el.removeEventListener('mouseenter', onEnter);
+        el.removeEventListener('mouseleave', onLeave);
+      });
     };
   }, []);
 

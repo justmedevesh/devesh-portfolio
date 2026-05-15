@@ -58,12 +58,12 @@ export default function Contact() {
 
   return (
     <SectionWrapper id="contact" bg="var(--bg)" style={{ minHeight: '70vh' }}>
-      <SectionLabel>// 06 — contact.sh</SectionLabel>
+      <SectionLabel>// 07 — contact.sh</SectionLabel>
       <SectionTitle>Get In Touch</SectionTitle>
       <div
         ref={ref}
+        className="contact-grid"
         style={{
-          display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '4rem',
           opacity: visible ? 1 : 0,
           transform: visible ? 'none' : 'translateY(30px)',
           transition: 'opacity 0.7s, transform 0.7s',

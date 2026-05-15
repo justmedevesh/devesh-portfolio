@@ -30,14 +30,15 @@ function Terminal() {
     { cmd: 'status', out: 'OPEN TO OPPORTUNITIES', neon: true },
   ];
 
+  const totalLines = lines.length;
   const [shown, setShown] = useState(0);
 
   useEffect(() => {
-    if (shown < lines.length) {
+    if (shown < totalLines) {
       const t = setTimeout(() => setShown(s => s + 1), 600);
       return () => clearTimeout(t);
     }
-  }, [shown]);
+  }, [shown, totalLines]);
 
   return (
     <div style={{
@@ -81,9 +82,8 @@ export default function About() {
       <SectionTitle>About Me</SectionTitle>
       <div
         ref={ref}
+        className="about-grid"
         style={{
-          display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '4rem',
-          alignItems: 'center',
           opacity: visible ? 1 : 0,
           transform: visible ? 'none' : 'translateY(30px)',
           transition: 'opacity 0.7s, transform 0.7s',

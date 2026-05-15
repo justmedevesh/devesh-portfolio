@@ -1,18 +1,23 @@
 /**
  * Firebase Configuration — Devesh Portfolio
+ *
+ * All credentials are loaded from environment variables (.env file).
+ * Never commit the .env file to version control.
  */
 
 import { initializeApp } from 'firebase/app';
 import { getFirestore } from 'firebase/firestore';
+import { getAuth } from 'firebase/auth';
 
 const firebaseConfig = {
-  apiKey:            'REDACTED',
-  authDomain:        'myportfolio-93d6e.firebaseapp.com',
-  projectId:         'myportfolio-93d6e',
-  storageBucket:     'myportfolio-93d6e.firebasestorage.app',
-  messagingSenderId: '400587596692',
-  appId:             '1:400587596692:web:5c7e6a573a8a3ca4d52581',
+  apiKey:            import.meta.env.VITE_FIREBASE_API_KEY,
+  authDomain:        import.meta.env.VITE_FIREBASE_AUTH_DOMAIN,
+  projectId:         import.meta.env.VITE_FIREBASE_PROJECT_ID,
+  storageBucket:     import.meta.env.VITE_FIREBASE_STORAGE_BUCKET,
+  messagingSenderId: import.meta.env.VITE_FIREBASE_MESSAGING_SENDER_ID,
+  appId:             import.meta.env.VITE_FIREBASE_APP_ID,
 };
 
 const app = initializeApp(firebaseConfig);
 export const db = getFirestore(app);
+export const auth = getAuth(app);

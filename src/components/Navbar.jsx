@@ -1,10 +1,14 @@
 import { useState, useEffect } from 'react';
-import { motion } from 'framer-motion';
+import { useLocation, useNavigate } from 'react-router-dom';
+import { motion, AnimatePresence } from 'framer-motion';
 
-const links = ['About', 'Skills', 'Experience', 'Education', 'Projects', 'Contact'];
+const links = ['About', 'Skills', 'Experience', 'Education', 'Projects', 'Blog', 'Contact'];
 
 export default function Navbar() {
   const [scrolled, setScrolled] = useState(false);
+  const [menuOpen, setMenuOpen] = useState(false);
+  const location = useLocation();
+  const navigate = useNavigate();
 
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 40);
@@ -12,47 +16,105 @@ export default function Navbar() {
     return () => window.removeEventListener('scroll', onScroll);
   }, []);
 
+  // Close menu on resize to desktop
+  useEffect(() => {
+    const onResize = () => { if (window.innerWidth > 768) setMenuOpen(false); };
+    window.addEventListener('resize', onResize);
+    return () => window.removeEventListener('resize', onResize);
+  }, []);
+
   const scrollTo = (id) => {
-    document.getElementById(id.toLowerCase())?.scrollIntoView({ behavior: 'smooth' });
+    setMenuOpen(false);
+    // If we're not on the homepage, navigate home first then scroll
+    if (location.pathname !== '/') {
+      navigate('/', { state: { scrollTo: id.toLowerCase() } });
+    } else {
+      document.getElementById(id.toLowerCase())?.scrollIntoView({ behavior: 'smooth' });
+    }
   };
 
+  // Handle scroll-to after navigating back to homepage
+  useEffect(() => {
+    if (location.pathname === '/' && location.state?.scrollTo) {
+      setTimeout(() => {
+        document.getElementById(location.state.scrollTo)?.scrollIntoView({ behavior: 'smooth' });
+      }, 300);
+      // Clear state so it doesn't re-scroll on refresh
+      window.history.replaceState({}, '');
+    }
+  }, [location]);
+
   return (
-    <motion.nav
-      initial={{ y: -60, opacity: 0 }}
-      animate={{ y: 0, opacity: 1 }}
-      transition={{ duration: 0.7, ease: 'easeOut' }}
-      style={{
-        position: 'fixed', top: 0, left: 0, right: 0, zIndex: 100,
-        display: 'flex', alignItems: 'center', justifyContent: 'space-between',
-        padding: '1.1rem 3rem',
-        background: scrolled ? 'rgba(2,11,24,0.92)' : 'rgba(2,11,24,0.7)',
-        backdropFilter: 'blur(14px)',
-        borderBottom: scrolled ? '1px solid var(--border)' : '1px solid transparent',
-        transition: 'background 0.4s, border-color 0.4s',
-      }}
-    >
-      <div style={{ fontFamily: 'var(--mono)', fontSize: '0.82rem', color: 'var(--cyan)', letterSpacing: '0.12em' }}>
-        DKM <span style={{ color: 'var(--muted)' }}>// data_scientist.py</span>
-      </div>
-      <div style={{ display: 'flex', gap: '1.4rem', flexWrap: 'wrap' }}>
-        {links.map((link) => (
-          <button
-            key={link}
-            className="nav-link"
-            onClick={() => scrollTo(link)}
-            style={{
-              fontFamily: 'var(--mono)', fontSize: '0.7rem', color: 'var(--muted)',
-              background: 'none', border: 'none', cursor: 'pointer',
-              letterSpacing: '0.12em', textTransform: 'uppercase',
-              transition: 'color 0.2s', padding: '0.2rem 0',
-            }}
-            onMouseEnter={e => e.target.style.color = 'var(--cyan)'}
-            onMouseLeave={e => e.target.style.color = 'var(--muted)'}
+    <>
+      <motion.nav
+        className="navbar"
+        initial={{ y: -60, opacity: 0 }}
+        animate={{ y: 0, opacity: 1 }}
+        transition={{ duration: 0.7, ease: 'easeOut' }}
+        style={{
+          background: scrolled ? 'rgba(2,11,24,0.92)' : 'rgba(2,11,24,0.7)',
+          borderBottom: scrolled ? '1px solid var(--border)' : '1px solid transparent',
+        }}
+      >
+        <div
+          className="navbar-brand"
+          style={{ cursor: 'pointer' }}
+          onClick={() => { navigate('/'); window.scrollTo({ top: 0, behavior: 'smooth' }); }}
+        >
+          DKM <span style={{ color: 'var(--muted)' }}>// data_scientist.py</span>
+        </div>
+
+        {/* Desktop links */}
+        <div className="navbar-links">
+          {links.map((link) => (
+            <button
+              key={link}
+              className="nav-link"
+              onClick={() => scrollTo(link)}
+            >
+              {link}
+            </button>
+          ))}
+        </div>
+
+        {/* Hamburger button */}
+        <button
+          className="navbar-hamburger"
+          onClick={() => setMenuOpen(!menuOpen)}
+          aria-label="Toggle menu"
+        >
+          <span className={`hamburger-line ${menuOpen ? 'open' : ''}`} />
+          <span className={`hamburger-line ${menuOpen ? 'open' : ''}`} />
+          <span className={`hamburger-line ${menuOpen ? 'open' : ''}`} />
+        </button>
+      </motion.nav>
+
+      {/* Mobile menu overlay */}
+      <AnimatePresence>
+        {menuOpen && (
+          <motion.div
+            className="mobile-menu"
+            initial={{ opacity: 0, y: -20 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -20 }}
+            transition={{ duration: 0.3 }}
           >
-            {link}
-          </button>
-        ))}
-      </div>
-    </motion.nav>
+            {links.map((link, i) => (
+              <motion.button
+                key={link}
+                className="mobile-menu-link"
+                onClick={() => scrollTo(link)}
+                initial={{ opacity: 0, x: -20 }}
+                animate={{ opacity: 1, x: 0 }}
+                transition={{ delay: i * 0.05 }}
+              >
+                <span className="mobile-link-index">0{i + 1}</span>
+                {link}
+              </motion.button>
+            ))}
+          </motion.div>
+        )}
+      </AnimatePresence>
+    </>
   );
 }

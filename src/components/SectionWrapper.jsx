@@ -10,7 +10,7 @@ export default function SectionWrapper({ id, bg, children, style = {} }) {
         ...style,
       }}
     >
-      <div style={{ maxWidth: 1100, margin: '0 auto', padding: '7rem 3rem' }}>
+      <div className="section-inner">
         {children}
       </div>
     </section>
