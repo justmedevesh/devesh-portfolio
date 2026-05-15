@@ -49,7 +49,7 @@ export default function BlogCard({ blog, index, visible = true }) {
       )}
 
       {/* Cover Image */}
-      {blog.coverImage && (
+      {blog.coverImage && blog.coverImage.startsWith('http') && (
         <div style={{
           width: '100%', height: 160, overflow: 'hidden',
           borderBottom: '1px solid var(--border)',
@@ -74,9 +74,7 @@ export default function BlogCard({ blog, index, visible = true }) {
         <div style={{
           display: 'flex', justifyContent: 'space-between', alignItems: 'center',
         }}>
-          <span style={{ fontSize: '1.4rem', opacity: 0.7 }}>
-            {blog.coverImage ? '' : '📝'}
-          </span>
+          <span style={{ fontSize: '1.4rem', opacity: 0.7 }}>📝</span>
           <div style={{
             fontFamily: 'var(--mono)', fontSize: '0.56rem',
             color: 'var(--muted)', letterSpacing: '0.08em',
