@@ -100,24 +100,4 @@ export const education = [
   },
 ];
 
-export const projects = [
-  {
-    title: 'Job Market Analysis & Recommendation System',
-    description:
-      'An end-to-end data science project that analyses job market trends and provides personalised job recommendations. Features interactive dashboards, salary insights, and ML-powered matching.',
-    tags: ['Python', 'Streamlit', 'Machine Learning', 'Data Analysis', 'NLP'],
-    github: 'https://github.com/justmedevesh',
-    live: 'https://jobmarketanalysisandrecommendationsystem.streamlit.app',
-    featured: true,
-  },
-  {
-    title: 'Disaster Tweet Classifier',
-    description:
-      'An NLP-powered classifier that determines whether a tweet is about a real disaster or not. Built using natural language processing techniques and deployed as an interactive Streamlit web app.',
-    tags: ['Python', 'NLP', 'Streamlit', 'Deep Learning', 'Text Classification'],
-    github: 'https://github.com/justmedevesh',
-    live: 'https://justmedevesh-disaster-tweet-classifier-app-ydgidq.streamlit.app',
-    featured: true,
-  },
-  // ── Add more projects below ──────────────────────────────
-];
+export const projects = [];
