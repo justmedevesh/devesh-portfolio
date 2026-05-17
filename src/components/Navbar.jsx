@@ -58,10 +58,21 @@ export default function Navbar() {
       >
         <div
           className="navbar-brand"
-          style={{ cursor: 'pointer' }}
+          style={{ cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '0.6rem' }}
           onClick={() => { navigate('/'); window.scrollTo({ top: 0, behavior: 'smooth' }); }}
         >
-          DKM <span style={{ color: 'var(--muted)' }}>// data_scientist.py</span>
+          <img
+            src="/logo.png"
+            alt="DKM Logo"
+            style={{
+              height: 32, width: 32, borderRadius: '50%',
+              filter: 'brightness(1.1)',
+              transition: 'filter 0.3s, transform 0.3s',
+            }}
+            onMouseEnter={(e) => { e.currentTarget.style.filter = 'brightness(1.3) drop-shadow(0 0 6px var(--cyan))'; e.currentTarget.style.transform = 'scale(1.1)'; }}
+            onMouseLeave={(e) => { e.currentTarget.style.filter = 'brightness(1.1)'; e.currentTarget.style.transform = 'scale(1)'; }}
+          />
+          <span>DKM <span style={{ color: 'var(--muted)' }}>// data_scientist.py</span></span>
         </div>
 
         {/* Desktop links */}
