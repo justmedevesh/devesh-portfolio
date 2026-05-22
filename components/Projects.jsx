@@ -42,7 +42,7 @@ export default function Projects() {
       </div>
 
       <div className="projects-view-all">
-        <Link to="/projects" className="view-all-btn">
+        <Link href="/projects" className="view-all-btn">
           Load More →
         </Link>
       </div>

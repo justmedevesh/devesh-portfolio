@@ -47,7 +47,7 @@ export default function Blog() {
       </div>
 
       <div className="projects-view-all">
-        <Link to="/blogs" className="view-all-btn">
+        <Link href="/blogs" className="view-all-btn">
           Load More →
         </Link>
       </div>
