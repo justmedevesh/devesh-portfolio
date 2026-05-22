@@ -1,0 +1,137 @@
+'use client';
+
+import { useState, useEffect } from 'react';
+import { usePathname, useRouter } from 'next/navigation';
+import { motion, AnimatePresence } from 'framer-motion';
+
+const links = ['About', 'Skills', 'Experience', 'Education', 'Projects', 'Blog', 'Contact'];
+
+export default function Navbar() {
+  const [scrolled, setScrolled] = useState(false);
+  const [menuOpen, setMenuOpen] = useState(false);
+  const pathname = usePathname();
+  const router = useRouter();
+
+  useEffect(() => {
+    const onScroll = () => setScrolled(window.scrollY > 40);
+    window.addEventListener('scroll', onScroll);
+    return () => window.removeEventListener('scroll', onScroll);
+  }, []);
+
+  // Close menu on resize to desktop
+  useEffect(() => {
+    const onResize = () => { if (window.innerWidth > 768) setMenuOpen(false); };
+    window.addEventListener('resize', onResize);
+    return () => window.removeEventListener('resize', onResize);
+  }, []);
+
+  const scrollTo = (id) => {
+    setMenuOpen(false);
+    // If we're not on the homepage, navigate home first then scroll
+    if (pathname !== '/') {
+      // Store scroll target and navigate home
+      sessionStorage.setItem('scrollTo', id.toLowerCase());
+      router.push('/');
+    } else {
+      document.getElementById(id.toLowerCase())?.scrollIntoView({ behavior: 'smooth' });
+    }
+  };
+
+  // Handle scroll-to after navigating back to homepage
+  useEffect(() => {
+    if (pathname === '/') {
+      const target = sessionStorage.getItem('scrollTo');
+      if (target) {
+        sessionStorage.removeItem('scrollTo');
+        setTimeout(() => {
+          document.getElementById(target)?.scrollIntoView({ behavior: 'smooth' });
+        }, 400);
+      }
+    }
+  }, [pathname]);
+
+  return (
+    <>
+      <motion.nav
+        className="navbar"
+        initial={{ y: -60, opacity: 0 }}
+        animate={{ y: 0, opacity: 1 }}
+        transition={{ duration: 0.7, ease: 'easeOut' }}
+        style={{
+          background: scrolled ? 'rgba(2,11,24,0.92)' : 'rgba(2,11,24,0.7)',
+          borderBottom: scrolled ? '1px solid var(--border)' : '1px solid transparent',
+        }}
+      >
+        <div
+          className="navbar-brand"
+          style={{ cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '0.6rem' }}
+          onClick={() => { router.push('/'); window.scrollTo({ top: 0, behavior: 'smooth' }); }}
+        >
+          <img
+            src="/logo.png"
+            alt="DKM Logo"
+            style={{
+              height: 32, width: 32, borderRadius: '50%',
+              filter: 'brightness(1.1)',
+              transition: 'filter 0.3s, transform 0.3s',
+            }}
+            onMouseEnter={(e) => { e.currentTarget.style.filter = 'brightness(1.3) drop-shadow(0 0 6px var(--cyan))'; e.currentTarget.style.transform = 'scale(1.1)'; }}
+            onMouseLeave={(e) => { e.currentTarget.style.filter = 'brightness(1.1)'; e.currentTarget.style.transform = 'scale(1)'; }}
+          />
+          <span>DKM <span style={{ color: 'var(--muted)' }}>// data_scientist.py</span></span>
+        </div>
+
+        {/* Desktop links */}
+        <div className="navbar-links">
+          {links.map((link) => (
+            <button
+              key={link}
+              className="nav-link"
+              onClick={() => scrollTo(link)}
+            >
+              {link}
+            </button>
+          ))}
+        </div>
+
+        {/* Hamburger button */}
+        <button
+          className="navbar-hamburger"
+          onClick={() => setMenuOpen(!menuOpen)}
+          aria-label="Toggle menu"
+        >
+          <span className={`hamburger-line ${menuOpen ? 'open' : ''}`} />
+          <span className={`hamburger-line ${menuOpen ? 'open' : ''}`} />
+          <span className={`hamburger-line ${menuOpen ? 'open' : ''}`} />
+        </button>
+      </motion.nav>
+
+      {/* Mobile menu overlay */}
+      <AnimatePresence>
+        {menuOpen && (
+          <motion.div
+            className="mobile-menu"
+            initial={{ opacity: 0, y: -20 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -20 }}
+            transition={{ duration: 0.3 }}
+          >
+            {links.map((link, i) => (
+              <motion.button
+                key={link}
+                className="mobile-menu-link"
+                onClick={() => scrollTo(link)}
+                initial={{ opacity: 0, x: -20 }}
+                animate={{ opacity: 1, x: 0 }}
+                transition={{ delay: i * 0.05 }}
+              >
+                <span className="mobile-link-index">0{i + 1}</span>
+                {link}
+              </motion.button>
+            ))}
+          </motion.div>
+        )}
+      </AnimatePresence>
+    </>
+  );
+}
