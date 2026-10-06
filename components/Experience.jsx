@@ -1,8 +1,9 @@
 'use client';
 
+import { useEffect, useState } from 'react';
 import SectionWrapper, { SectionLabel, SectionTitle } from './SectionWrapper';
 import { useReveal } from './useReveal';
-import { experience } from '../data/portfolio';
+import { getDisplayExperiences } from '../data/experienceStore';
 
 function ExpItem({ item, index, visible }) {
   return (
@@ -59,7 +60,7 @@ function ExpItem({ item, index, visible }) {
             ● Current
           </span>
         )}
-        {item.tags.map(tag => (
+        {(item.tags || []).map(tag => (
           <span key={tag} style={{
             fontFamily: 'var(--mono)', fontSize: '0.58rem',
             padding: '0.2rem 0.6rem',
@@ -76,6 +77,11 @@ function ExpItem({ item, index, visible }) {
 
 export default function Experience() {
   const { ref, visible } = useReveal();
+  const [experience, setExperience] = useState([]);
+
+  useEffect(() => {
+    getDisplayExperiences().then(setExperience);
+  }, []);
 
   return (
     <SectionWrapper id="experience" bg="var(--bg)">
@@ -90,7 +96,7 @@ export default function Experience() {
         }}
       >
         {experience.map((item, i) => (
-          <ExpItem key={item.company} item={item} index={i} visible={visible} />
+          <ExpItem key={item.id || item.company} item={item} index={i} visible={visible} />
         ))}
       </div>
     </SectionWrapper>

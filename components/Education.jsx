@@ -1,8 +1,9 @@
 'use client';
 
+import { useEffect, useState } from 'react';
 import SectionWrapper, { SectionLabel, SectionTitle } from './SectionWrapper';
 import { useReveal } from './useReveal';
-import { education } from '../data/portfolio';
+import { getDisplayEducation } from '../data/educationStore';
 
 function EduCard({ item, index, visible }) {
   return (
@@ -62,6 +63,11 @@ function EduCard({ item, index, visible }) {
 
 export default function Education() {
   const { ref, visible } = useReveal();
+  const [education, setEducation] = useState([]);
+
+  useEffect(() => {
+    getDisplayEducation().then(setEducation);
+  }, []);
 
   return (
     <SectionWrapper id="education" bg="var(--bg2)">
@@ -76,7 +82,7 @@ export default function Education() {
         }}
       >
         {education.map((item, i) => (
-          <EduCard key={item.school} item={item} index={i} visible={visible} />
+          <EduCard key={item.id || item.school} item={item} index={i} visible={visible} />
         ))}
       </div>
     </SectionWrapper>

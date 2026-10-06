@@ -3,7 +3,7 @@
 import { useEffect, useState } from 'react';
 import SectionWrapper, { SectionLabel, SectionTitle } from './SectionWrapper';
 import { useReveal } from './useReveal';
-import { skills } from '../data/portfolio';
+import { getDisplaySkills } from '../data/skillStore';
 
 function SkillCard({ skill, visible, delay }) {
   const [barWidth, setBarWidth] = useState(0);
@@ -61,6 +61,11 @@ function SkillCard({ skill, visible, delay }) {
 
 export default function Skills() {
   const { ref, visible } = useReveal();
+  const [skills, setSkills] = useState([]);
+
+  useEffect(() => {
+    getDisplaySkills().then(setSkills);
+  }, []);
 
   return (
     <SectionWrapper id="skills" bg="var(--bg2)">
@@ -72,7 +77,7 @@ export default function Skills() {
         gap: '1rem',
       }}>
         {skills.map((skill, i) => (
-          <SkillCard key={skill.name} skill={skill} visible={visible} delay={i * 50} />
+          <SkillCard key={skill.id || skill.name} skill={skill} visible={visible} delay={i * 50} />
         ))}
       </div>
     </SectionWrapper>
