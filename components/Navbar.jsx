@@ -6,30 +6,62 @@ import { motion, AnimatePresence } from 'framer-motion';
 
 const links = ['About', 'Skills', 'Experience', 'Education', 'Projects', 'Blog', 'Contact'];
 
+/** Live Kathmandu time — a small "this machine is running" detail. */
+function KtmClock() {
+  const [time, setTime] = useState('');
+  useEffect(() => {
+    const fmt = new Intl.DateTimeFormat('en-GB', {
+      timeZone: 'Asia/Kathmandu', hour: '2-digit', minute: '2-digit', second: '2-digit',
+    });
+    const update = () => setTime(fmt.format(new Date()));
+    update();
+    const t = setInterval(update, 1000);
+    return () => clearInterval(t);
+  }, []);
+  return (
+    <div className="navbar-status">
+      <span className="status-dot" /> KTM {time || '--:--:--'}
+    </div>
+  );
+}
+
 export default function Navbar() {
   const [scrolled, setScrolled] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
+  const [active, setActive] = useState('');
   const pathname = usePathname();
   const router = useRouter();
 
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 40);
-    window.addEventListener('scroll', onScroll);
+    onScroll();
+    window.addEventListener('scroll', onScroll, { passive: true });
     return () => window.removeEventListener('scroll', onScroll);
   }, []);
 
   // Close menu on resize to desktop
   useEffect(() => {
-    const onResize = () => { if (window.innerWidth > 768) setMenuOpen(false); };
+    const onResize = () => { if (window.innerWidth > 860) setMenuOpen(false); };
     window.addEventListener('resize', onResize);
     return () => window.removeEventListener('resize', onResize);
   }, []);
+
+  // Highlight the section currently in the middle of the viewport
+  useEffect(() => {
+    if (pathname !== '/') return;
+    const sections = links.map((l) => document.getElementById(l.toLowerCase())).filter(Boolean);
+    const obs = new IntersectionObserver(
+      (entries) => entries.forEach((e) => { if (e.isIntersecting) setActive(e.target.id); }),
+      { rootMargin: '-45% 0px -50% 0px' }
+    );
+    sections.forEach((s) => obs.observe(s));
+    return () => obs.disconnect();
+  }, [pathname]);
 
   const scrollTo = (id) => {
     setMenuOpen(false);
     // If we're not on the homepage, navigate home first then scroll
     if (pathname !== '/') {
-      // Store scroll target and navigate home
       sessionStorage.setItem('scrollTo', id.toLowerCase());
       router.push('/');
     } else {
@@ -53,40 +85,25 @@ export default function Navbar() {
   return (
     <>
       <motion.nav
-        className="navbar"
-        initial={{ y: -60, opacity: 0 }}
-        animate={{ y: 0, opacity: 1 }}
-        transition={{ duration: 0.7, ease: 'easeOut' }}
-        style={{
-          background: scrolled ? 'rgba(2,11,24,0.92)' : 'rgba(2,11,24,0.7)',
-          borderBottom: scrolled ? '1px solid var(--border)' : '1px solid transparent',
-        }}
+        className={`navbar ${scrolled || menuOpen ? 'scrolled' : ''}`}
+        initial={{ y: -40, opacity: 0, x: '-50%' }}
+        animate={{ y: 0, opacity: 1, x: '-50%' }}
+        transition={{ duration: 0.8, ease: [0.22, 1, 0.36, 1] }}
       >
-        <div
+        <button
           className="navbar-brand"
-          style={{ cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '0.6rem' }}
           onClick={() => { router.push('/'); window.scrollTo({ top: 0, behavior: 'smooth' }); }}
+          aria-label="Home"
         >
-          <img
-            src="/logo.png"
-            alt="DKM Logo"
-            style={{
-              height: 32, width: 32, borderRadius: '50%',
-              filter: 'brightness(1.1)',
-              transition: 'filter 0.3s, transform 0.3s',
-            }}
-            onMouseEnter={(e) => { e.currentTarget.style.filter = 'brightness(1.3) drop-shadow(0 0 6px var(--cyan))'; e.currentTarget.style.transform = 'scale(1.1)'; }}
-            onMouseLeave={(e) => { e.currentTarget.style.filter = 'brightness(1.1)'; e.currentTarget.style.transform = 'scale(1)'; }}
-          />
-          <span>DKM <span style={{ color: 'var(--muted)' }}>// data_scientist.py</span></span>
-        </div>
+          <img src="/logo.png" alt="" />
+          <span>DKM<span className="brand-caret">_</span> <span className="brand-sub">/ data_scientist</span></span>
+        </button>
 
-        {/* Desktop links */}
         <div className="navbar-links">
           {links.map((link) => (
             <button
               key={link}
-              className="nav-link"
+              className={`nav-link ${active === link.toLowerCase() ? 'active' : ''}`}
               onClick={() => scrollTo(link)}
             >
               {link}
@@ -94,11 +111,13 @@ export default function Navbar() {
           ))}
         </div>
 
-        {/* Hamburger button */}
+        <KtmClock />
+
         <button
           className="navbar-hamburger"
           onClick={() => setMenuOpen(!menuOpen)}
           aria-label="Toggle menu"
+          aria-expanded={menuOpen}
         >
           <span className={`hamburger-line ${menuOpen ? 'open' : ''}`} />
           <span className={`hamburger-line ${menuOpen ? 'open' : ''}`} />
@@ -106,24 +125,23 @@ export default function Navbar() {
         </button>
       </motion.nav>
 
-      {/* Mobile menu overlay */}
       <AnimatePresence>
         {menuOpen && (
           <motion.div
             className="mobile-menu"
-            initial={{ opacity: 0, y: -20 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: -20 }}
-            transition={{ duration: 0.3 }}
+            initial={{ clipPath: 'circle(0% at 100% 0%)' }}
+            animate={{ clipPath: 'circle(150% at 100% 0%)' }}
+            exit={{ clipPath: 'circle(0% at 100% 0%)' }}
+            transition={{ duration: 0.55, ease: [0.76, 0, 0.24, 1] }}
           >
             {links.map((link, i) => (
               <motion.button
                 key={link}
                 className="mobile-menu-link"
                 onClick={() => scrollTo(link)}
-                initial={{ opacity: 0, x: -20 }}
+                initial={{ opacity: 0, x: -30 }}
                 animate={{ opacity: 1, x: 0 }}
-                transition={{ delay: i * 0.05 }}
+                transition={{ delay: 0.15 + i * 0.05 }}
               >
                 <span className="mobile-link-index">0{i + 1}</span>
                 {link}

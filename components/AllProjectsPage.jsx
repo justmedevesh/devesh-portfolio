@@ -4,8 +4,6 @@ import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { getAllProjects } from '../data/projectStore';
 import ProjectCard from './ProjectCard';
-import NeuralCanvas from './NeuralCanvas';
-import Navbar from './Navbar';
 
 export default function AllProjectsPage() {
   const [projects, setProjects] = useState([]);
@@ -29,13 +27,10 @@ export default function AllProjectsPage() {
 
   return (
     <>
-      <NeuralCanvas />
-      <Navbar />
       <div className="all-projects-page">
         {/* Header */}
         <motion.div
           className="all-projects-header"
-          style={{ paddingTop: '6rem' }}
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.6, delay: 0.1 }}
@@ -99,7 +94,7 @@ export default function AllProjectsPage() {
 
         {filtered.length === 0 && (
           <div className="all-projects-empty">
-            <div style={{ fontSize: '2.5rem', marginBottom: '1rem', opacity: 0.5 }}>📭</div>
+            <div style={{ fontFamily: 'var(--mono)', fontSize: '2rem', color: 'var(--cyan)', marginBottom: '1rem' }}>{'{ }'}</div>
             <h3>No projects match this filter</h3>
             <p>Try selecting a different tag or view all projects.</p>
             <button className="filter-tag active" onClick={() => setFilter('all')} style={{ marginTop: '1rem' }}>
@@ -108,12 +103,6 @@ export default function AllProjectsPage() {
           </div>
         )}
 
-        {/* Footer */}
-        <div className="all-projects-footer">
-          <p>
-            © 2026 <span style={{ color: 'var(--cyan)' }}>Devesh Kumar Mandal</span> — Data Scientist
-          </p>
-        </div>
       </div>
     </>
   );

@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useRef } from 'react';
 import Link from 'next/link';
-import SectionWrapper, { SectionLabel, SectionTitle } from './SectionWrapper';
+import SectionWrapper, { SectionHead } from './SectionWrapper';
 import { getPublishedBlogs } from '../data/blogStore';
 import BlogCard from './BlogCard';
 
@@ -24,67 +24,35 @@ export default function Blog() {
     if (blogs.length === 0 || !ref.current) return;
     const obs = new IntersectionObserver(
       ([entry]) => { if (entry.isIntersecting) setVisible(true); },
-      { threshold: 0.12 }
+      { threshold: 0.05 }
     );
     obs.observe(ref.current);
     return () => obs.disconnect();
   }, [blogs.length]);
 
   return (
-    <SectionWrapper id="blog" bg="var(--bg)">
-      <SectionLabel>// 06 — blog.md</SectionLabel>
-      <SectionTitle>Blog</SectionTitle>
+    <SectionWrapper id="blog">
+      <SectionHead index="06" label="blog.md" title={<>Notes from the <span className="grad-text">lab.</span></>} />
 
       {loading ? (
-        /* Loading skeleton */
         <div className="projects-grid">
-          {[1, 2, 3].map((i) => (
-            <div
-              key={i}
-              style={{
-                background: 'var(--card)',
-                border: '1px solid var(--border)',
-                height: 280,
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                animation: 'pulse 1.5s ease-in-out infinite',
-              }}
-            >
-              <span style={{ fontFamily: 'var(--mono)', fontSize: '0.65rem', color: 'var(--muted)', letterSpacing: '0.15em' }}>
-                loading...
-              </span>
-            </div>
-          ))}
+          {[1, 2, 3].map((i) => <div key={i} className="skeleton" />)}
         </div>
       ) : blogs.length === 0 ? (
-        /* No blogs published yet */
-        <div style={{ textAlign: 'center', padding: '3rem 1rem' }}>
-          <div style={{ fontSize: '2rem', opacity: 0.4, marginBottom: '0.8rem' }}>📝</div>
-          <p style={{ fontFamily: 'var(--mono)', fontSize: '0.72rem', color: 'var(--muted)' }}>
-            No blog posts published yet. Check back soon!
-          </p>
-        </div>
+        <p className="empty-state">{'// no posts published yet — the model is still writing'}</p>
       ) : (
-        /* Blog cards */
         <div ref={ref} className="projects-grid">
           {blogs.map((blog, i) => (
-            <BlogCard
-              key={blog.id}
-              blog={blog}
-              index={i}
-              visible={visible}
-            />
+            <BlogCard key={blog.id} blog={blog} index={i} visible={visible} />
           ))}
         </div>
       )}
 
       <div className="projects-view-all">
-        <Link href="/blogs" className="view-all-btn">
-          Load More →
+        <Link href="/blogs" className="btn btn-ghost">
+          Read all posts <span className="arrow">→</span>
         </Link>
       </div>
     </SectionWrapper>
   );
 }
-

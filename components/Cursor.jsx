@@ -1,96 +1,76 @@
+'use client';
+
 import { useEffect, useRef } from 'react';
 
-const INTERACTIVE_SELECTOR = 'button, a, .skill-card, .edu-card, .contact-item, .nav-link, .project-card';
+const INTERACTIVE_SELECTOR = 'button, a, input, textarea, select, .tilt, .sphere';
 
+/** Dot + lagging ring cursor. Only active on devices with a fine pointer. */
 export default function Cursor() {
   const dotRef = useRef(null);
   const ringRef = useRef(null);
 
   useEffect(() => {
+    if (!window.matchMedia('(hover: hover) and (pointer: fine)').matches) return;
     const dot = dotRef.current;
     const ring = ringRef.current;
-    let mouseX = 0, mouseY = 0;
-    let ringX = 0, ringY = 0;
+
+    let mouseX = -100, mouseY = -100;
+    let ringX = -100, ringY = -100;
 
     const onMove = (e) => {
+      // Reveal only after the first real movement so nothing sits at (0,0)
+      dot.style.display = ring.style.display = 'block';
       mouseX = e.clientX;
       mouseY = e.clientY;
-      dot.style.left = mouseX + 'px';
-      dot.style.top = mouseY + 'px';
+      dot.style.transform = `translate3d(${mouseX}px, ${mouseY}px, 0) translate(-50%, -50%)`;
+    };
+
+    // Event delegation covers elements rendered later (e.g. Firestore content)
+    const onOver = (e) => {
+      const hot = e.target.closest?.(INTERACTIVE_SELECTOR);
+      ring.classList.toggle('hot', Boolean(hot));
     };
 
     let rafId;
     const animate = () => {
       rafId = requestAnimationFrame(animate);
-      ringX += (mouseX - ringX) * 0.12;
-      ringY += (mouseY - ringY) * 0.12;
-      ring.style.left = ringX + 'px';
-      ring.style.top = ringY + 'px';
+      ringX += (mouseX - ringX) * 0.16;
+      ringY += (mouseY - ringY) * 0.16;
+      ring.style.transform = `translate3d(${ringX}px, ${ringY}px, 0) translate(-50%, -50%)`;
     };
-
-    const onEnter = () => {
-      ring.style.width = '52px';
-      ring.style.height = '52px';
-      ring.style.borderColor = 'var(--cyan)';
-      dot.style.transform = 'translate(-50%,-50%) scale(1.6)';
-    };
-    const onLeave = () => {
-      ring.style.width = '36px';
-      ring.style.height = '36px';
-      dot.style.transform = 'translate(-50%,-50%) scale(1)';
-    };
-
-    // Track attached elements so we can clean up
-    const attached = new Set();
-
-    function attachListeners(el) {
-      if (attached.has(el)) return;
-      el.addEventListener('mouseenter', onEnter);
-      el.addEventListener('mouseleave', onLeave);
-      attached.add(el);
-    }
-
-    function scanAndAttach() {
-      document.querySelectorAll(INTERACTIVE_SELECTOR).forEach(attachListeners);
-    }
 
     document.addEventListener('mousemove', onMove);
-    scanAndAttach();
+    document.addEventListener('mouseover', onOver);
     animate();
-
-    // Watch for dynamically added elements (e.g. projects loaded from Firebase)
-    const observer = new MutationObserver(scanAndAttach);
-    observer.observe(document.body, { childList: true, subtree: true });
 
     return () => {
       document.removeEventListener('mousemove', onMove);
+      document.removeEventListener('mouseover', onOver);
       cancelAnimationFrame(rafId);
-      observer.disconnect();
-      attached.forEach(el => {
-        el.removeEventListener('mouseenter', onEnter);
-        el.removeEventListener('mouseleave', onLeave);
-      });
     };
   }, []);
 
   return (
     <>
       <div ref={dotRef} style={{
-        position: 'fixed', width: 10, height: 10,
-        background: 'var(--cyan)', borderRadius: '50%',
-        pointerEvents: 'none', zIndex: 9999,
-        transform: 'translate(-50%,-50%)',
-        transition: 'transform 0.15s',
-        mixBlendMode: 'screen', top: 0, left: 0,
+        display: 'none', position: 'fixed', top: 0, left: 0, width: 6, height: 6,
+        background: '#fff', borderRadius: '50%', pointerEvents: 'none', zIndex: 10001,
+        mixBlendMode: 'difference',
       }} />
-      <div ref={ringRef} style={{
-        position: 'fixed', width: 36, height: 36,
-        border: '1px solid var(--cyan)', borderRadius: '50%',
-        pointerEvents: 'none', zIndex: 9998,
-        transform: 'translate(-50%,-50%)',
-        transition: 'width 0.2s, height 0.2s, border-color 0.2s',
-        opacity: 0.5, top: 0, left: 0,
-      }} />
+      <div ref={ringRef} className="cursor-ring" style={{ display: 'none' }} />
+      <style>{`
+        .cursor-ring {
+          position: fixed; top: 0; left: 0; width: 34px; height: 34px;
+          border: 1px solid rgba(34, 230, 255, 0.6); border-radius: 50%;
+          pointer-events: none; z-index: 10000;
+          transition: width 0.25s var(--ease), height 0.25s var(--ease), background 0.25s, border-color 0.25s;
+        }
+        .cursor-ring.hot {
+          width: 58px; height: 58px;
+          border-color: var(--cyan);
+          background: rgba(34, 230, 255, 0.08);
+        }
+      `}</style>
     </>
   );
 }

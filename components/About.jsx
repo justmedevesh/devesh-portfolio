@@ -1,23 +1,20 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import SectionWrapper, { SectionLabel, SectionTitle } from './SectionWrapper';
+import SectionWrapper, { SectionHead } from './SectionWrapper';
+import TiltCard from './TiltCard';
+import Reveal from './Reveal';
 import { useReveal } from './useReveal';
 import { personal } from '../data/portfolio';
 
-const HIGHLIGHTS = ["Master's in Data Science", 'tech-focused', 'initiative'];
+const HIGHLIGHTS = ["Master's in Data Science", 'Data Science Intern', 'tech-focused', 'initiative', 'real world'];
 
 function HighlightText({ text }) {
   const parts = text.split(new RegExp(`(${HIGHLIGHTS.join('|')})`, 'g'));
   return (
-    <p style={{
-      fontFamily: 'var(--mono)', fontSize: '0.8rem',
-      color: 'var(--muted)', lineHeight: 2, marginBottom: '1.1rem',
-    }}>
+    <p>
       {parts.map((part, j) =>
-        HIGHLIGHTS.includes(part)
-          ? <span key={j} style={{ color: 'var(--cyan)' }}>{part}</span>
-          : part
+        HIGHLIGHTS.includes(part) ? <span key={j} className="hl">{part}</span> : part
       )}
     </p>
   );
@@ -26,77 +23,58 @@ function HighlightText({ text }) {
 function Terminal() {
   const lines = [
     { cmd: 'whoami', out: personal.name },
-    { cmd: 'cat bio.txt', out: '"' + personal.bio + '"' },
+    { cmd: 'cat bio.txt', out: `"${personal.bio}"` },
     { cmd: 'echo $LOCATION', out: personal.location },
-    { cmd: 'python --version', out: 'Python 3.x — installed' },
-    { cmd: 'status', out: 'OPEN TO OPPORTUNITIES', neon: true },
+    { cmd: 'python -c "import ml; ml.status()"', out: 'models: trained · coffee: critical' },
+    { cmd: 'status --hire', out: '✔ OPEN TO OPPORTUNITIES', hot: true },
   ];
 
-  const totalLines = lines.length;
+  const { ref, visible } = useReveal(0.3);
   const [shown, setShown] = useState(0);
 
   useEffect(() => {
-    if (shown < totalLines) {
-      const t = setTimeout(() => setShown(s => s + 1), 600);
+    if (visible && shown < lines.length) {
+      const t = setTimeout(() => setShown((s) => s + 1), shown === 0 ? 300 : 550);
       return () => clearTimeout(t);
     }
-  }, [shown, totalLines]);
+  }, [visible, shown, lines.length]);
 
   return (
-    <div style={{
-      background: '#000', border: '1px solid var(--border)',
-      padding: '1.4rem', borderRadius: 4,
-      fontFamily: 'var(--mono)', fontSize: '0.74rem', lineHeight: 2,
-    }}>
-      <div style={{ display: 'flex', gap: '0.45rem', marginBottom: '1rem', paddingBottom: '0.7rem', borderBottom: '1px solid var(--border)' }}>
-        {['#ff5f57','#febc2e','#28c840'].map(c => (
-          <div key={c} style={{ width: 10, height: 10, borderRadius: '50%', background: c }} />
-        ))}
-        <span style={{ fontSize: '0.62rem', color: 'var(--muted)', marginLeft: '0.4rem' }}>devesh@ds:~</span>
-      </div>
-      {lines.slice(0, shown).map((line, i) => (
-        <div key={i}>
-          <div>
-            <span style={{ color: 'var(--cyan)' }}>{'> '}</span>
-            <span style={{ color: '#39ff14' }}>{line.cmd}</span>
-          </div>
-          <div style={{ color: line.neon ? '#39ff14' : 'var(--muted)', marginBottom: '0.2rem' }}>
-            {line.out}
-          </div>
+    <div ref={ref}>
+      <TiltCard className="glass-card terminal" max={6}>
+        <div className="terminal-bar">
+          <i style={{ background: '#ff5f57' }} />
+          <i style={{ background: '#febc2e' }} />
+          <i style={{ background: '#28c840' }} />
+          <span>devesh@neural-core: ~</span>
         </div>
-      ))}
-      {shown >= lines.length && (
-        <div style={{ color: 'var(--cyan)' }}>
-          {'> '}<span style={{ animation: 'blink 1s infinite' }}>_</span>
+        <div className="terminal-body pop-sm">
+          {lines.slice(0, shown).map((line) => (
+            <div key={line.cmd}>
+              <div><span className="p">❯ </span><span className="c">{line.cmd}</span></div>
+              <div className={`o ${line.hot ? 'hot' : ''}`}>{line.out}</div>
+            </div>
+          ))}
+          {shown >= lines.length && (
+            <div><span className="p">❯ </span><span className="brand-caret">█</span></div>
+          )}
         </div>
-      )}
-      <style>{`@keyframes blink { 0%,100%{opacity:1} 50%{opacity:0} }`}</style>
+      </TiltCard>
     </div>
   );
 }
 
 export default function About() {
-  const { ref, visible } = useReveal();
-
   return (
-    <SectionWrapper id="about" bg="linear-gradient(180deg, var(--bg) 0%, var(--bg2) 100%)">
-      <SectionLabel>// 01 --- about.md</SectionLabel>
-      <SectionTitle>About Me</SectionTitle>
-      <div
-        ref={ref}
-        className="about-grid"
-        style={{
-          opacity: visible ? 1 : 0,
-          transform: visible ? 'none' : 'translateY(30px)',
-          transition: 'opacity 0.7s, transform 0.7s',
-        }}
-      >
-        <div>
-          {personal.about.map((p, i) => (
-            <HighlightText key={i} text={p} />
-          ))}
-        </div>
-        <Terminal />
+    <SectionWrapper id="about">
+      <SectionHead index="01" label="about.md" title={<>Turning noise into <span className="grad-text">signal.</span></>} />
+      <div className="about-grid">
+        <Reveal className="about-text">
+          {personal.about.map((p, i) => <HighlightText key={i} text={p} />)}
+        </Reveal>
+        <Reveal delay={150}>
+          <Terminal />
+        </Reveal>
       </div>
     </SectionWrapper>
   );

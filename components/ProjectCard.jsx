@@ -1,154 +1,39 @@
 'use client';
 
-export default function ProjectCard({ project, index, visible = true }) {
-  const isFeatured = project.featured;
+import TiltCard from './TiltCard';
 
+function ChipIcon() {
   return (
-    <div
-      className="project-card"
-      style={{
-        background: 'var(--card)',
-        border: `1px solid ${isFeatured ? 'var(--cyan)' : 'var(--border)'}`,
-        borderRadius: 0,
-        padding: '1.8rem 1.6rem',
-        display: 'flex',
-        flexDirection: 'column',
-        gap: '0.9rem',
-        position: 'relative',
-        overflow: 'hidden',
-        opacity: visible ? 1 : 0,
-        transform: visible ? 'none' : 'translateY(28px)',
-        transition: `opacity 0.6s ${index * 0.12}s, transform 0.6s ${index * 0.12}s, border-color 0.3s, box-shadow 0.3s`,
-      }}
-      onMouseEnter={(e) => {
-        e.currentTarget.style.borderColor = 'var(--cyan)';
-        e.currentTarget.style.boxShadow = '0 0 30px rgba(0,229,255,0.08)';
-      }}
-      onMouseLeave={(e) => {
-        e.currentTarget.style.borderColor = isFeatured
-          ? 'var(--cyan)'
-          : 'var(--border)';
-        e.currentTarget.style.boxShadow = 'none';
-      }}
-    >
-      {/* Featured indicator */}
-      {isFeatured && (
-        <div
-          style={{
-            position: 'absolute',
-            top: 0,
-            left: 0,
-            right: 0,
-            height: 2,
-            background:
-              'linear-gradient(90deg, var(--cyan), var(--blue), transparent)',
-          }}
-        />
-      )}
+    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+      <rect x="6" y="6" width="12" height="12" rx="2" />
+      <rect x="9.5" y="9.5" width="5" height="5" rx="1" />
+      <path d="M9 2v4M15 2v4M9 18v4M15 18v4M2 9h4M2 15h4M18 9h4M18 15h4" />
+    </svg>
+  );
+}
 
-      {/* Header row: folder icon + links */}
-      <div
-        style={{
-          display: 'flex',
-          justifyContent: 'space-between',
-          alignItems: 'center',
-        }}
-      >
-        <span style={{ fontSize: '1.6rem', opacity: 0.7 }}>📂</span>
-        <div style={{ display: 'flex', gap: '0.8rem' }}>
-          {project.github && (
-            <a
-              href={project.github}
-              target="_blank"
-              rel="noopener noreferrer"
-              style={{
-                fontFamily: 'var(--mono)',
-                fontSize: '0.62rem',
-                color: 'var(--muted)',
-                letterSpacing: '0.08em',
-                textTransform: 'uppercase',
-                transition: 'color 0.2s',
-                textDecoration: 'none',
-              }}
-              onMouseEnter={(e) => (e.target.style.color = 'var(--cyan)')}
-              onMouseLeave={(e) => (e.target.style.color = 'var(--muted)')}
-            >
-              GitHub ↗
-            </a>
-          )}
-          {project.live && (
-            <a
-              href={project.live}
-              target="_blank"
-              rel="noopener noreferrer"
-              style={{
-                fontFamily: 'var(--mono)',
-                fontSize: '0.62rem',
-                color: 'var(--cyan)',
-                letterSpacing: '0.08em',
-                textTransform: 'uppercase',
-                transition: 'color 0.2s',
-                textDecoration: 'none',
-              }}
-              onMouseEnter={(e) => (e.target.style.color = 'var(--neon)')}
-              onMouseLeave={(e) => (e.target.style.color = 'var(--cyan)')}
-            >
-              Live ↗
-            </a>
-          )}
+export default function ProjectCard({ project, index = 0, visible = true }) {
+  return (
+    <div className={`reveal ${visible ? 'is-visible' : ''}`} style={{ '--d': `${index * 110}ms`, height: '100%' }}>
+      <TiltCard className={`glass-card project-card ${project.featured ? 'featured' : ''}`}>
+        <div className="card-top pop-sm">
+          <div className="card-icon"><ChipIcon /></div>
+          <div className="card-links">
+            {project.featured && <span className="chip chip-cyan">★ Featured</span>}
+            {project.github && (
+              <a className="card-link" href={project.github} target="_blank" rel="noopener noreferrer">GitHub ↗</a>
+            )}
+            {project.live && (
+              <a className="card-link" href={project.live} target="_blank" rel="noopener noreferrer">Live ↗</a>
+            )}
+          </div>
         </div>
-      </div>
-
-      {/* Title */}
-      <h3
-        style={{
-          fontSize: '1.1rem',
-          fontWeight: 700,
-          lineHeight: 1.3,
-          color: 'var(--text)',
-        }}
-      >
-        {project.title}
-      </h3>
-
-      {/* Description */}
-      <p
-        style={{
-          fontFamily: 'var(--mono)',
-          fontSize: '0.72rem',
-          color: 'var(--muted)',
-          lineHeight: 1.85,
-          flex: 1,
-        }}
-      >
-        {project.description}
-      </p>
-
-      {/* Tags */}
-      <div
-        style={{
-          display: 'flex',
-          flexWrap: 'wrap',
-          gap: '0.4rem',
-          marginTop: 'auto',
-        }}
-      >
-        {project.tags.map((tag) => (
-          <span
-            key={tag}
-            style={{
-              fontFamily: 'var(--mono)',
-              fontSize: '0.56rem',
-              padding: '0.2rem 0.55rem',
-              border: '1px solid var(--border)',
-              color: 'var(--muted)',
-              letterSpacing: '0.06em',
-            }}
-          >
-            {tag}
-          </span>
-        ))}
-      </div>
+        <h3 className="card-title pop-sm">{project.title}</h3>
+        <p className="card-desc">{project.description}</p>
+        <div className="card-tags">
+          {(project.tags || []).map((tag) => <span key={tag} className="chip">{tag}</span>)}
+        </div>
+      </TiltCard>
     </div>
   );
 }

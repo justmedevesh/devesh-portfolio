@@ -1,102 +1,57 @@
 'use client';
 
-import { useEffect, useState } from 'react';
-import SectionWrapper, { SectionLabel, SectionTitle } from './SectionWrapper';
-import { useReveal } from './useReveal';
+import { useEffect, useRef, useState } from 'react';
+import { motion, useScroll, useSpring } from 'framer-motion';
+import SectionWrapper, { SectionHead } from './SectionWrapper';
+import TiltCard from './TiltCard';
+import Reveal from './Reveal';
 import { getDisplayExperiences } from '../data/experienceStore';
 
-function ExpItem({ item, index, visible }) {
+function ExpItem({ item, index }) {
   return (
-    <div
-      style={{
-        position: 'relative', marginBottom: '3rem', paddingLeft: '2rem',
-        opacity: visible ? 1 : 0,
-        transform: visible ? 'none' : 'translateX(-20px)',
-        transition: `opacity 0.6s ${index * 0.15}s, transform 0.6s ${index * 0.15}s`,
-      }}
-    >
-      {/* Timeline dot */}
-      <div style={{
-        position: 'absolute', left: '-0.55rem', top: '0.3rem',
-        width: 10, height: 10, borderRadius: '50%',
-        background: item.current ? 'var(--cyan)' : 'var(--muted)',
-        boxShadow: item.current ? '0 0 12px var(--cyan)' : 'none',
-      }} />
-
-      <div style={{
-        fontFamily: 'var(--mono)', fontSize: '0.63rem',
-        color: 'var(--cyan)', letterSpacing: '0.1em',
-        textTransform: 'uppercase', marginBottom: '0.35rem',
-      }}>
-        {item.period} · {item.duration}
-      </div>
-
-      <h3 style={{ fontSize: '1.15rem', fontWeight: 700, marginBottom: '0.2rem' }}>
-        {item.role}
-      </h3>
-
-      <div style={{
-        fontFamily: 'var(--mono)', fontSize: '0.72rem',
-        color: 'var(--muted)', marginBottom: '0.8rem',
-      }}>
-        {item.company} &nbsp;·&nbsp; {item.type} &nbsp;·&nbsp; {item.location}
-      </div>
-
-      <p style={{
-        fontFamily: 'var(--mono)', fontSize: '0.73rem',
-        color: 'var(--muted)', lineHeight: 1.9, maxWidth: 620,
-      }}>
-        {item.description}
-      </p>
-
-      <div style={{ marginTop: '0.8rem', display: 'flex', flexWrap: 'wrap', gap: '0.4rem' }}>
-        {item.current && (
-          <span style={{
-            fontFamily: 'var(--mono)', fontSize: '0.58rem',
-            padding: '0.2rem 0.6rem',
-            border: '1px solid var(--cyan)', color: 'var(--cyan)',
-            letterSpacing: '0.08em',
-          }}>
-            ● Current
-          </span>
-        )}
-        {(item.tags || []).map(tag => (
-          <span key={tag} style={{
-            fontFamily: 'var(--mono)', fontSize: '0.58rem',
-            padding: '0.2rem 0.6rem',
-            border: '1px solid var(--border)', color: 'var(--muted)',
-            letterSpacing: '0.06em',
-          }}>
-            {tag}
-          </span>
-        ))}
-      </div>
-    </div>
+    <Reveal className="exp-item" delay={index * 120}>
+      <div className={`exp-node ${item.current ? 'current' : ''}`} />
+      <TiltCard className="glass-card exp-card" max={4}>
+        <div className="pop-sm">
+          <div className="exp-meta">
+            <span className="exp-period">{item.period} · {item.duration}</span>
+            {item.current && <span className="chip chip-hot">● Current</span>}
+          </div>
+          <h3 className="exp-role">{item.role}</h3>
+          <div className="exp-company">
+            <strong>{item.company}</strong> · {item.type} · {item.location}
+          </div>
+          <p className="exp-desc">{item.description}</p>
+          {(item.tags || []).length > 0 && (
+            <div className="tag-row">
+              {item.tags.map((tag) => <span key={tag} className="chip">{tag}</span>)}
+            </div>
+          )}
+        </div>
+      </TiltCard>
+    </Reveal>
   );
 }
 
 export default function Experience() {
-  const { ref, visible } = useReveal();
   const [experience, setExperience] = useState([]);
+  const timelineRef = useRef(null);
+  const { scrollYProgress } = useScroll({ target: timelineRef, offset: ['start 75%', 'end 60%'] });
+  const scaleY = useSpring(scrollYProgress, { stiffness: 120, damping: 30 });
 
   useEffect(() => {
     getDisplayExperiences().then(setExperience);
   }, []);
 
   return (
-    <SectionWrapper id="experience" bg="var(--bg)">
-      <SectionLabel>// 03 — experience.log</SectionLabel>
-      <SectionTitle>Experience</SectionTitle>
-      <div
-        ref={ref}
-        style={{
-          position: 'relative', paddingLeft: '1.5rem',
-          borderLeft: '1px solid',
-          borderImage: 'linear-gradient(180deg, var(--cyan), var(--blue2), transparent) 1',
-        }}
-      >
+    <SectionWrapper id="experience">
+      <SectionHead index="03" label="experience.log" title={<>Where I&apos;ve <span className="grad-text">shipped.</span></>} />
+      <div ref={timelineRef} className="timeline">
+        <div className="timeline-track">
+          <motion.div className="timeline-fill" style={{ scaleY }} />
+        </div>
         {experience.map((item, i) => (
-          <ExpItem key={item.id || item.company} item={item} index={i} visible={visible} />
+          <ExpItem key={item.id || item.company} item={item} index={i} />
         ))}
       </div>
     </SectionWrapper>

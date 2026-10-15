@@ -3,95 +3,123 @@
 import { useEffect, useRef } from 'react';
 import * as THREE from 'three';
 
+/** Soft round sprite so points render as glowing dots instead of squares. */
+function makeDotTexture() {
+  const c = document.createElement('canvas');
+  c.width = c.height = 64;
+  const ctx = c.getContext('2d');
+  const g = ctx.createRadialGradient(32, 32, 0, 32, 32, 32);
+  g.addColorStop(0, 'rgba(255,255,255,1)');
+  g.addColorStop(0.3, 'rgba(255,255,255,0.6)');
+  g.addColorStop(1, 'rgba(255,255,255,0)');
+  ctx.fillStyle = g;
+  ctx.fillRect(0, 0, 64, 64);
+  return new THREE.CanvasTexture(c);
+}
+
+/**
+ * Fixed full-page 3D background: a drifting particle nebula above an endless
+ * perspective grid. The camera follows the mouse and sinks as the page scrolls.
+ */
 export default function NeuralCanvas() {
   const canvasRef = useRef(null);
 
   useEffect(() => {
     const canvas = canvasRef.current;
-    const renderer = new THREE.WebGLRenderer({ canvas, alpha: true, antialias: true });
-    renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+    const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    const small = window.innerWidth < 768;
+
+    const renderer = new THREE.WebGLRenderer({ canvas, alpha: true, antialias: !small, powerPreference: 'high-performance' });
+    renderer.setPixelRatio(Math.min(window.devicePixelRatio, small ? 1.5 : 2));
     renderer.setSize(window.innerWidth, window.innerHeight);
 
     const scene = new THREE.Scene();
-    const camera = new THREE.PerspectiveCamera(60, window.innerWidth / window.innerHeight, 0.1, 1000);
-    camera.position.z = 5;
+    scene.fog = new THREE.FogExp2(0x05060b, 0.055);
+    const camera = new THREE.PerspectiveCamera(60, window.innerWidth / window.innerHeight, 0.1, 100);
+    camera.position.set(0, 0.6, 8);
 
-    const N = 200;
+    /* ── Particle nebula ───────────────────────────── */
+    const N = small ? 700 : 1600;
     const positions = new Float32Array(N * 3);
-    const velocities = [];
-
+    const colors = new Float32Array(N * 3);
+    const cA = new THREE.Color('#22e6ff');
+    const cB = new THREE.Color('#8b5cf6');
+    const cC = new THREE.Color('#ff3d9a');
+    const tmp = new THREE.Color();
     for (let i = 0; i < N; i++) {
-      positions[i * 3] = (Math.random() - 0.5) * 14;
-      positions[i * 3 + 1] = (Math.random() - 0.5) * 10;
-      positions[i * 3 + 2] = (Math.random() - 0.5) * 6;
-      velocities.push({
-        x: (Math.random() - 0.5) * 0.004,
-        y: (Math.random() - 0.5) * 0.004,
-        z: (Math.random() - 0.5) * 0.002,
-      });
+      positions[i * 3] = (Math.random() - 0.5) * 34;
+      positions[i * 3 + 1] = (Math.random() - 0.3) * 18;
+      positions[i * 3 + 2] = (Math.random() - 0.5) * 24;
+      const t = Math.random();
+      tmp.copy(t < 0.5 ? cA : cB).lerp(t < 0.5 ? cB : cC, Math.random() * 0.6);
+      colors.set([tmp.r, tmp.g, tmp.b], i * 3);
     }
+    const pGeo = new THREE.BufferGeometry();
+    pGeo.setAttribute('position', new THREE.BufferAttribute(positions, 3));
+    pGeo.setAttribute('color', new THREE.BufferAttribute(colors, 3));
+    const dot = makeDotTexture();
+    const pMat = new THREE.PointsMaterial({
+      size: 0.09, map: dot, vertexColors: true, transparent: true, opacity: 0.85,
+      depthWrite: false, blending: THREE.AdditiveBlending, sizeAttenuation: true,
+    });
+    const nebula = new THREE.Points(pGeo, pMat);
+    scene.add(nebula);
 
-    const geo = new THREE.BufferGeometry();
-    geo.setAttribute('position', new THREE.BufferAttribute(positions, 3));
-    const mat = new THREE.PointsMaterial({ color: 0x00e5ff, size: 0.07, transparent: true, opacity: 0.85 });
-    const points = new THREE.Points(geo, mat);
-    scene.add(points);
+    /* ── Infinite grid floor ───────────────────────── */
+    const grid = new THREE.GridHelper(80, 80, 0x8b5cf6, 0x22e6ff);
+    grid.material.transparent = true;
+    grid.material.opacity = 0.16;
+    grid.material.depthWrite = false;
+    grid.position.y = -3.2;
+    scene.add(grid);
 
-    // Static connection lines
-    const linePositions = [];
-    for (let i = 0; i < N; i++) {
-      for (let j = i + 1; j < N; j++) {
-        const dx = positions[i * 3] - positions[j * 3];
-        const dy = positions[i * 3 + 1] - positions[j * 3 + 1];
-        const dz = positions[i * 3 + 2] - positions[j * 3 + 2];
-        if (Math.sqrt(dx * dx + dy * dy + dz * dz) < 2.4) {
-          linePositions.push(positions[i * 3], positions[i * 3 + 1], positions[i * 3 + 2]);
-          linePositions.push(positions[j * 3], positions[j * 3 + 1], positions[j * 3 + 2]);
-        }
-      }
-    }
-    const lineGeo = new THREE.BufferGeometry();
-    lineGeo.setAttribute('position', new THREE.BufferAttribute(new Float32Array(linePositions), 3));
-    const lineMat = new THREE.LineBasicMaterial({ color: 0x0077b6, transparent: true, opacity: 0.22 });
-    scene.add(new THREE.LineSegments(lineGeo, lineMat));
-
-    let mouseX = 0, mouseY = 0;
-    const onMouseMove = (e) => {
-      mouseX = (e.clientX / window.innerWidth - 0.5) * 2;
-      mouseY = -(e.clientY / window.innerHeight - 0.5) * 2;
+    /* ── Input ─────────────────────────────────────── */
+    let mx = 0, my = 0, scrollY = window.scrollY;
+    const onMouse = (e) => {
+      mx = (e.clientX / window.innerWidth - 0.5) * 2;
+      my = (e.clientY / window.innerHeight - 0.5) * 2;
     };
-    document.addEventListener('mousemove', onMouseMove);
-
-    let rafId;
-    const animate = () => {
-      rafId = requestAnimationFrame(animate);
-      const pos = points.geometry.attributes.position.array;
-      for (let i = 0; i < N; i++) {
-        pos[i * 3] += velocities[i].x;
-        pos[i * 3 + 1] += velocities[i].y;
-        pos[i * 3 + 2] += velocities[i].z;
-        if (Math.abs(pos[i * 3]) > 7) velocities[i].x *= -1;
-        if (Math.abs(pos[i * 3 + 1]) > 5) velocities[i].y *= -1;
-        if (Math.abs(pos[i * 3 + 2]) > 3) velocities[i].z *= -1;
-      }
-      points.geometry.attributes.position.needsUpdate = true;
-      scene.rotation.y += (mouseX * 0.15 - scene.rotation.y) * 0.02;
-      scene.rotation.x += (mouseY * 0.08 - scene.rotation.x) * 0.02;
-      renderer.render(scene, camera);
-    };
-    animate();
-
+    const onScroll = () => { scrollY = window.scrollY; };
     const onResize = () => {
       camera.aspect = window.innerWidth / window.innerHeight;
       camera.updateProjectionMatrix();
       renderer.setSize(window.innerWidth, window.innerHeight);
+      if (reduced) renderer.render(scene, camera);
     };
+    window.addEventListener('mousemove', onMouse, { passive: true });
+    window.addEventListener('scroll', onScroll, { passive: true });
     window.addEventListener('resize', onResize);
+
+    /* ── Loop ──────────────────────────────────────── */
+    const start = performance.now();
+    let rafId;
+    const tick = () => {
+      rafId = requestAnimationFrame(tick);
+      if (document.hidden) return;
+      const t = (performance.now() - start) / 1000;
+
+      nebula.rotation.y = t * 0.012;
+      grid.position.z = (t * 0.6) % 1; // grid cells are 1 unit: wrap for an endless glide
+
+      const scrollDepth = Math.min(scrollY / 2500, 1.6);
+      // Grid belongs to the hero; fade it so it doesn't stripe behind content
+      grid.material.opacity = 0.16 * Math.max(0, 1 - scrollY / 900);
+      camera.position.x += (mx * 0.9 - camera.position.x) * 0.03;
+      camera.position.y += (0.6 - my * 0.5 - scrollDepth * 1.4 - camera.position.y) * 0.03;
+      camera.lookAt(0, -scrollDepth * 1.2, 0);
+      renderer.render(scene, camera);
+    };
+
+    if (reduced) renderer.render(scene, camera);
+    else tick();
 
     return () => {
       cancelAnimationFrame(rafId);
-      document.removeEventListener('mousemove', onMouseMove);
+      window.removeEventListener('mousemove', onMouse);
+      window.removeEventListener('scroll', onScroll);
       window.removeEventListener('resize', onResize);
+      pGeo.dispose(); pMat.dispose(); dot.dispose();
+      grid.geometry.dispose(); grid.material.dispose();
       renderer.dispose();
     };
   }, []);
@@ -99,11 +127,8 @@ export default function NeuralCanvas() {
   return (
     <canvas
       ref={canvasRef}
-      style={{
-        position: 'fixed', top: 0, left: 0,
-        width: '100%', height: '100%',
-        zIndex: 0, pointerEvents: 'none',
-      }}
+      aria-hidden="true"
+      style={{ position: 'fixed', inset: 0, width: '100%', height: '100%', zIndex: 0, pointerEvents: 'none' }}
     />
   );
 }

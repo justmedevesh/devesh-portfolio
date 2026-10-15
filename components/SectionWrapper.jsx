@@ -1,43 +1,25 @@
 'use client';
 
-export default function SectionWrapper({ id, bg, children, style = {} }) {
+import ScrambleText from './ScrambleText';
+import { useReveal } from './useReveal';
+
+export default function SectionWrapper({ id, children, className = '' }) {
   return (
-    <section
-      id={id}
-      style={{
-        position: 'relative',
-        zIndex: 2,
-        minHeight: '100vh',
-        background: bg || 'var(--bg)',
-        ...style,
-      }}
-    >
-      <div className="section-inner">
-        {children}
-      </div>
+    <section id={id} className={`section ${className}`}>
+      <div className="section-inner">{children}</div>
     </section>
   );
 }
 
-export function SectionLabel({ children }) {
+/** Numbered label + title that decodes itself when it scrolls into view. */
+export function SectionHead({ index, label, title }) {
+  const { ref, visible } = useReveal(0.4);
   return (
-    <div style={{
-      fontFamily: 'var(--mono)', fontSize: '0.68rem',
-      color: 'var(--cyan)', letterSpacing: '0.25em',
-      textTransform: 'uppercase', marginBottom: '0.6rem',
-    }}>
-      {children}
+    <div ref={ref} className={`section-head reveal ${visible ? 'is-visible' : ''}`}>
+      <div className="section-label">
+        {index} / <ScrambleText text={label} trigger={visible} duration={600} />
+      </div>
+      <h2 className="section-title">{title}</h2>
     </div>
-  );
-}
-
-export function SectionTitle({ children }) {
-  return (
-    <h2 style={{
-      fontSize: 'clamp(1.8rem, 4vw, 3rem)',
-      fontWeight: 800, marginBottom: '3rem', lineHeight: 1.1,
-    }}>
-      {children}
-    </h2>
   );
 }
