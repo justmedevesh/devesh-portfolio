@@ -1,3 +1,6 @@
+// BootLoader is its own client boundary: nesting it inside ClientProviders
+// drops ClientProviders from the RSC client manifest on Next 15.5
+import BootLoader from '../components/BootLoader';
 import ClientProviders from '../components/ClientProviders';
 import '../styles/globals.css';
 
@@ -88,6 +91,7 @@ export default function RootLayout({ children }) {
       </head>
       <body>
         {/* Client-only: NeuralCanvas (Three.js) + Cursor — loaded with ssr:false */}
+        <BootLoader />
         <ClientProviders />
         {children}
       </body>
