@@ -27,3 +27,35 @@ export const MinIcon = () => (<svg {...base} strokeWidth="2.4"><path d="M5 12h14
 export const MaxIcon = () => (<svg {...base} strokeWidth="2.4"><rect x="5" y="5" width="14" height="14" rx="1" /></svg>);
 export const CloseIcon = () => (<svg {...base} strokeWidth="2.4"><path d="M6 6l12 12M18 6 6 18" /></svg>);
 export const ImageIcon = () => (<svg {...base}><rect x="3" y="4" width="18" height="16" rx="2" /><circle cx="9" cy="10" r="2" /><path d="m21 16-5-5-9 9" /></svg>);
+export const LinkIcon = () => (<svg {...base}><path d="M10 14a4 4 0 0 0 5.7 0l3-3a4 4 0 0 0-5.7-5.7l-1 1" /><path d="M14 10a4 4 0 0 0-5.7 0l-3 3a4 4 0 0 0 5.7 5.7l1-1" /></svg>);
+export const GlobeIcon = () => (<svg {...base}><circle cx="12" cy="12" r="9" /><path d="M3 12h18M12 3a14 14 0 0 1 0 18M12 3a14 14 0 0 0 0 18" /></svg>);
+export const XIcon = () => (<svg {...base}><path d="M4 4l16 16M20 4 4 20" /></svg>);
+export const InstagramIcon = () => (<svg {...base}><rect x="3" y="3" width="18" height="18" rx="5" /><circle cx="12" cy="12" r="4" /><path d="M17.5 6.5h.01" /></svg>);
+export const FacebookIcon = () => (<svg {...base}><path d="M15 3h-2.5A3.5 3.5 0 0 0 9 6.5V10H6v4h3v7h4v-7h3l1-4h-4V7a1 1 0 0 1 1-1h2V3Z" /></svg>);
+export const YoutubeIcon = () => (<svg {...base}><rect x="2" y="5" width="20" height="14" rx="4" /><path d="m10 9 5 3-5 3V9Z" /></svg>);
+export const MediumIcon = () => (<svg {...base}><ellipse cx="7" cy="12" rx="4.5" ry="5" /><ellipse cx="16" cy="12" rx="2.2" ry="4.6" /><path d="M21 7.5v9" /></svg>);
+export const KaggleIcon = () => (<svg {...base}><path d="M7 3v18M7 13l9-9M10.5 10.5 17 21" /></svg>);
+export const WhatsappIcon = () => (<svg {...base}><path d="M3.5 20.5 5 16a8.5 8.5 0 1 1 3 3l-4.5 1.5Z" /><path d="M9 9.5c0 3 2.5 5.5 5.5 5.5l1-1.5-2-1-1 1a4 4 0 0 1-2-2l1-1-1-2L9 9.5Z" /></svg>);
+export const TelegramIcon = () => (<svg {...base}><path d="M21 4 3 11l6 2 2 6 3-4 5 4 2-15Z" /><path d="m9 13 8-6" /></svg>);
+export const PhoneIcon = () => (<svg {...base}><path d="M5 4h4l2 5-2.5 1.5a11 11 0 0 0 5 5L15 13l5 2v4a2 2 0 0 1-2 2A16 16 0 0 1 3 6a2 2 0 0 1 2-2Z" /></svg>);
+
+/** Platforms the admin can pick for a social link → icon + default label. */
+export const SOCIAL_PLATFORMS = {
+  github: { label: 'GitHub', Icon: GithubIcon, hint: 'https://github.com/username' },
+  linkedin: { label: 'LinkedIn', Icon: LinkedinIcon, hint: 'https://linkedin.com/in/username' },
+  x: { label: 'X (Twitter)', Icon: XIcon, hint: 'https://x.com/username' },
+  instagram: { label: 'Instagram', Icon: InstagramIcon, hint: 'https://instagram.com/username' },
+  facebook: { label: 'Facebook', Icon: FacebookIcon, hint: 'https://facebook.com/username' },
+  youtube: { label: 'YouTube', Icon: YoutubeIcon, hint: 'https://youtube.com/@channel' },
+  medium: { label: 'Medium', Icon: MediumIcon, hint: 'https://medium.com/@username' },
+  kaggle: { label: 'Kaggle', Icon: KaggleIcon, hint: 'https://kaggle.com/username' },
+  whatsapp: { label: 'WhatsApp', Icon: WhatsappIcon, hint: 'https://wa.me/9779800000000' },
+  telegram: { label: 'Telegram', Icon: TelegramIcon, hint: 'https://t.me/username' },
+  email: { label: 'Email', Icon: MailIcon, hint: 'you@example.com' },
+  phone: { label: 'Phone', Icon: PhoneIcon, hint: 'tel:+9779800000000' },
+  website: { label: 'Website', Icon: GlobeIcon, hint: 'https://example.com' },
+};
+
+export const socialIcon = (platform) => (SOCIAL_PLATFORMS[platform] || SOCIAL_PLATFORMS.website).Icon;
+export const StarIcon = () => (<svg {...base}><path d="m12 3 2.8 5.7 6.2.9-4.5 4.4 1 6.2L12 17.3 6.5 20.2l1-6.2L3 9.6l6.2-.9L12 3Z" /></svg>);
+export const DraftIcon = () => (<svg {...base}><path d="M4 20h4L19 9l-4-4L4 16v4Z" /><path d="m13.5 6.5 4 4" /></svg>);

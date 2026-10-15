@@ -1,10 +1,12 @@
 'use client';
 
+import { useEffect, useState } from 'react';
 import SectionWrapper, { SectionHead } from './SectionWrapper';
 import TiltCard from './TiltCard';
 import Reveal from './Reveal';
 import { personal } from '../data/portfolio';
-import { TerminalIcon, GithubIcon, LinkedinIcon } from './Icons';
+import { TerminalIcon, SOCIAL_PLATFORMS, socialIcon } from './Icons';
+import { getSocials, DEFAULT_SOCIALS } from '../data/socialStore';
 
 /** Pure-CSS 3D wireframe globe: meridians rotated around Y, latitudes stacked on Z. */
 function Globe() {
@@ -50,7 +52,16 @@ function ContactItem({ icon, label, children, delay }) {
   );
 }
 
+/** "https://github.com/x" → "github.com/x", "mailto:a@b.c" → "a@b.c" */
+const prettyUrl = (url) => url.replace(/^(https?:\/\/(www\.)?|mailto:|tel:)/i, '').replace(/\/$/, '');
+
 export default function Contact() {
+  const [socials, setSocials] = useState(DEFAULT_SOCIALS);
+
+  useEffect(() => {
+    getSocials().then(setSocials).catch(() => {});
+  }, []);
+
   return (
     <SectionWrapper id="contact" title="ssh devesh@contact" app="Terminal" Icon={TerminalIcon}>
       <SectionHead index="08" label="contact" title={<>Let&apos;s build something <span className="grad-text">intelligent.</span></>} />
@@ -62,13 +73,23 @@ export default function Contact() {
               <div key={p}><a href={`tel:${p.replace(/[^+\d]/g, '')}`}>{p}</a></div>
             ))}
           </ContactItem>
-          <ContactItem icon={<span style={{ width: 20, height: 20, display: 'block' }}><GithubIcon /></span>} label="GitHub" delay={80}>
-            <a href={personal.github} target="_blank" rel="noreferrer">github.com/justmedevesh</a>
-          </ContactItem>
-          <ContactItem icon={<span style={{ width: 20, height: 20, display: 'block' }}><LinkedinIcon /></span>} label="LinkedIn" delay={160}>
-            <a href={personal.linkedin} target="_blank" rel="noreferrer">devesh-kumar-mandal</a>
-          </ContactItem>
-          <ContactItem icon="◎" label="Location" delay={240}>
+          {socials.map((link, i) => {
+            const Icon = socialIcon(link.platform);
+            const external = /^https?:/i.test(link.url);
+            return (
+              <ContactItem
+                key={link.id || link.url}
+                icon={<span style={{ width: 20, height: 20, display: 'block' }}><Icon /></span>}
+                label={link.label || SOCIAL_PLATFORMS[link.platform]?.label || 'Link'}
+                delay={80 + i * 80}
+              >
+                <a href={link.url} target={external ? '_blank' : undefined} rel={external ? 'noreferrer' : undefined}>
+                  {prettyUrl(link.url)}
+                </a>
+              </ContactItem>
+            );
+          })}
+          <ContactItem icon="◎" label="Location" delay={80 + socials.length * 80}>
             {personal.location}
           </ContactItem>
         </div>

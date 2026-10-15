@@ -58,6 +58,18 @@ import {
 } from '../data/certificateMedia';
 import { projects as staticProjects, skills as staticSkills, experience as staticExperience, education as staticEducation } from '../data/portfolio';
 import './AdminPanel.css';
+import {
+  getAdminSocials,
+  addSocial,
+  updateSocial,
+  deleteSocial,
+  swapSocialOrder,
+  seedSocialsFromDefaults,
+} from '../data/socialStore';
+import {
+  FolderIcon, DocIcon, MonitorIcon, BriefcaseIcon, CapIcon, AwardIcon, LinkIcon,
+  StarIcon, DraftIcon, PowerIcon, HomeIcon, SOCIAL_PLATFORMS, socialIcon,
+} from './Icons';
 
 /* ═══════════════════════════════════════════════════
    Tag Input Component
@@ -295,7 +307,7 @@ function SkillForm({ initial, onSave, onCancel }) {
                 onClick={() => handle('icon', emoji)}
                 style={{
                   fontSize: '1rem', padding: '0.3rem 0.45rem',
-                  background: form.icon === emoji ? 'rgba(0,229,255,0.15)' : 'var(--card)',
+                  background: form.icon === emoji ? 'rgba(233,84,32,0.15)' : 'var(--card)',
                   border: form.icon === emoji ? '1px solid var(--cyan)' : '1px solid var(--border)',
                   cursor: 'pointer', transition: 'all 0.2s',
                 }}
@@ -353,9 +365,9 @@ function SkillForm({ initial, onSave, onCancel }) {
           border: '1px solid var(--border)',
           borderLeft: '3px solid var(--cyan)',
           padding: '1.2rem',
-          background: 'rgba(0,229,255,0.03)',
+          background: 'rgba(233,84,32,0.03)',
         }}>
-          <div style={{ fontFamily: 'var(--mono)', fontSize: '0.62rem', color: 'var(--cyan)', letterSpacing: '0.15em', textTransform: 'uppercase', marginBottom: '0.8rem' }}>
+          <div style={{ fontFamily: 'var(--mono)', fontSize: '0.76rem', color: 'var(--cyan)', letterSpacing: '0.15em', textTransform: 'uppercase', marginBottom: '0.8rem' }}>
             👁 Live Preview
           </div>
           <div style={{
@@ -365,7 +377,7 @@ function SkillForm({ initial, onSave, onCancel }) {
             minWidth: 130,
           }}>
             <div style={{ fontSize: '1.5rem', marginBottom: '0.5rem' }}>{form.icon || '⚡'}</div>
-            <div style={{ fontFamily: 'var(--mono)', fontSize: '0.66rem', color: 'var(--text)', letterSpacing: '0.04em' }}>
+            <div style={{ fontFamily: 'var(--mono)', fontSize: '0.8rem', color: 'var(--text)', letterSpacing: '0.04em' }}>
               {form.name || 'Skill Name'}
             </div>
             <div style={{
@@ -379,7 +391,7 @@ function SkillForm({ initial, onSave, onCancel }) {
                 transition: 'width 0.3s ease',
               }} />
             </div>
-            <div style={{ fontFamily: 'var(--mono)', fontSize: '0.55rem', color: 'var(--muted)', marginTop: '0.3rem' }}>
+            <div style={{ fontFamily: 'var(--mono)', fontSize: '0.69rem', color: 'var(--muted)', marginTop: '0.3rem' }}>
               {form.category || 'Category'}
             </div>
           </div>
@@ -519,9 +531,9 @@ function ExperienceForm({ initial, onSave, onCancel }) {
           border: '1px solid var(--border)',
           borderLeft: '3px solid var(--cyan)',
           padding: '1.2rem',
-          background: 'rgba(0,229,255,0.03)',
+          background: 'rgba(233,84,32,0.03)',
         }}>
-          <div style={{ fontFamily: 'var(--mono)', fontSize: '0.62rem', color: 'var(--cyan)', letterSpacing: '0.15em', textTransform: 'uppercase', marginBottom: '0.8rem' }}>
+          <div style={{ fontFamily: 'var(--mono)', fontSize: '0.76rem', color: 'var(--cyan)', letterSpacing: '0.15em', textTransform: 'uppercase', marginBottom: '0.8rem' }}>
             👁 Live Preview
           </div>
           <div style={{ position: 'relative', paddingLeft: '2rem' }}>
@@ -531,7 +543,7 @@ function ExperienceForm({ initial, onSave, onCancel }) {
               background: form.current ? 'var(--cyan)' : 'var(--muted)',
               boxShadow: form.current ? '0 0 12px var(--cyan)' : 'none',
             }} />
-            <div style={{ fontFamily: 'var(--mono)', fontSize: '0.63rem', color: 'var(--cyan)', letterSpacing: '0.1em', textTransform: 'uppercase', marginBottom: '0.35rem' }}>
+            <div style={{ fontFamily: 'var(--mono)', fontSize: '0.77rem', color: 'var(--cyan)', letterSpacing: '0.1em', textTransform: 'uppercase', marginBottom: '0.35rem' }}>
               {form.period || 'Period'} · {form.duration || 'Duration'}
             </div>
             <h3 style={{ fontSize: '1.15rem', fontWeight: 700, color: 'var(--text)', marginBottom: '0.2rem' }}>
@@ -545,12 +557,12 @@ function ExperienceForm({ initial, onSave, onCancel }) {
             </p>
             <div style={{ marginTop: '0.8rem', display: 'flex', flexWrap: 'wrap', gap: '0.4rem' }}>
               {form.current && (
-                <span style={{ fontFamily: 'var(--mono)', fontSize: '0.58rem', padding: '0.2rem 0.6rem', border: '1px solid var(--cyan)', color: 'var(--cyan)', letterSpacing: '0.08em' }}>
+                <span style={{ fontFamily: 'var(--mono)', fontSize: '0.72rem', padding: '0.2rem 0.6rem', border: '1px solid var(--cyan)', color: 'var(--cyan)', letterSpacing: '0.08em' }}>
                   ● Current
                 </span>
               )}
               {(form.tags || []).map(tag => (
-                <span key={tag} style={{ fontFamily: 'var(--mono)', fontSize: '0.58rem', padding: '0.2rem 0.6rem', border: '1px solid var(--border)', color: 'var(--muted)', letterSpacing: '0.06em' }}>
+                <span key={tag} style={{ fontFamily: 'var(--mono)', fontSize: '0.72rem', padding: '0.2rem 0.6rem', border: '1px solid var(--border)', color: 'var(--muted)', letterSpacing: '0.06em' }}>
                   {tag}
                 </span>
               ))}
@@ -641,9 +653,9 @@ function EducationForm({ initial, onSave, onCancel }) {
           border: '1px solid var(--border)',
           borderLeft: '3px solid var(--cyan)',
           padding: '1.2rem',
-          background: 'rgba(0,229,255,0.03)',
+          background: 'rgba(233,84,32,0.03)',
         }}>
-          <div style={{ fontFamily: 'var(--mono)', fontSize: '0.62rem', color: 'var(--cyan)', letterSpacing: '0.15em', textTransform: 'uppercase', marginBottom: '0.8rem' }}>
+          <div style={{ fontFamily: 'var(--mono)', fontSize: '0.76rem', color: 'var(--cyan)', letterSpacing: '0.15em', textTransform: 'uppercase', marginBottom: '0.8rem' }}>
             👁 Live Preview
           </div>
           <div style={{
@@ -655,17 +667,17 @@ function EducationForm({ initial, onSave, onCancel }) {
               position: 'absolute', top: 0, left: 0, right: 0, height: 2,
               background: 'linear-gradient(90deg, var(--blue2), var(--cyan))',
             }} />
-            <div style={{ fontFamily: 'var(--mono)', fontSize: '0.62rem', color: 'var(--cyan)', letterSpacing: '0.12em', textTransform: 'uppercase', marginBottom: '0.5rem' }}>
+            <div style={{ fontFamily: 'var(--mono)', fontSize: '0.76rem', color: 'var(--cyan)', letterSpacing: '0.12em', textTransform: 'uppercase', marginBottom: '0.5rem' }}>
               {form.degree || 'Degree'}
             </div>
             <h3 style={{ fontSize: '0.95rem', fontWeight: 700, color: 'var(--text)', marginBottom: '0.4rem', lineHeight: 1.3 }}>
               {form.school || 'School'}
             </h3>
-            <div style={{ fontFamily: 'var(--mono)', fontSize: '0.62rem', color: 'var(--muted)' }}>
+            <div style={{ fontFamily: 'var(--mono)', fontSize: '0.76rem', color: 'var(--muted)' }}>
               {form.period || 'Period'}
             </div>
             {form.current && (
-              <div style={{ marginTop: '0.7rem', fontFamily: 'var(--mono)', fontSize: '0.62rem', color: 'var(--neon)' }}>
+              <div style={{ marginTop: '0.7rem', fontFamily: 'var(--mono)', fontSize: '0.76rem', color: 'var(--neon)' }}>
                 ● IN PROGRESS
               </div>
             )}
@@ -819,14 +831,14 @@ function CertificateForm({ initial, onSave, onCancel }) {
         </div>
 
         {status && (
-          <div style={{ fontFamily: 'var(--mono)', fontSize: '0.66rem', color: status.startsWith('⚠') ? '#ff6b6b' : 'var(--cyan)', lineHeight: 1.6 }}>
+          <div style={{ fontFamily: 'var(--mono)', fontSize: '0.8rem', color: status.startsWith('⚠') ? '#ff6b6b' : 'var(--cyan)', lineHeight: 1.6 }}>
             {status}
           </div>
         )}
 
         {form.preview && (
-          <div style={{ border: '1px solid var(--border)', borderLeft: '3px solid var(--cyan)', padding: '1.2rem', background: 'rgba(0,229,255,0.03)' }}>
-            <div style={{ fontFamily: 'var(--mono)', fontSize: '0.62rem', color: 'var(--cyan)', letterSpacing: '0.15em', textTransform: 'uppercase', marginBottom: '0.8rem' }}>
+          <div style={{ border: '1px solid var(--border)', borderLeft: '3px solid var(--cyan)', padding: '1.2rem', background: 'rgba(233,84,32,0.03)' }}>
+            <div style={{ fontFamily: 'var(--mono)', fontSize: '0.76rem', color: 'var(--cyan)', letterSpacing: '0.15em', textTransform: 'uppercase', marginBottom: '0.8rem' }}>
               👁 Public Preview (what visitors see)
             </div>
             <img src={form.preview} alt="Certificate preview" style={{ maxWidth: 420, width: '100%', display: 'block', border: '1px solid var(--border)' }} />
@@ -836,6 +848,126 @@ function CertificateForm({ initial, onSave, onCancel }) {
         <div className="form-actions">
           <button type="submit" className="btn-admin primary" disabled={busy}>
             {busy ? '⏳ Saving...' : isEdit ? '⟳ Update Certificate' : '+ Add Certificate'}
+          </button>
+          <button type="button" className="btn-admin" onClick={onCancel} disabled={busy}>
+            Cancel
+          </button>
+        </div>
+      </form>
+    </div>
+  );
+}
+
+/* ═══════════════════════════════════════════════════
+   Ubuntu chrome — GNOME top bar + sidebar sections
+   ═══════════════════════════════════════════════════ */
+const TABS = [
+  { id: 'projects', label: 'Projects', Icon: FolderIcon },
+  { id: 'blogs', label: 'Blog Posts', Icon: DocIcon },
+  { id: 'skills', label: 'Skills', Icon: MonitorIcon },
+  { id: 'experience', label: 'Experience', Icon: BriefcaseIcon },
+  { id: 'education', label: 'Education', Icon: CapIcon },
+  { id: 'certificates', label: 'Certificates', Icon: AwardIcon },
+  { id: 'socials', label: 'Social Links', Icon: LinkIcon },
+];
+
+function GnomeBar({ children }) {
+  const [time, setTime] = useState('');
+  useEffect(() => {
+    const fmt = new Intl.DateTimeFormat('en-US', {
+      timeZone: 'Asia/Kathmandu', weekday: 'short', month: 'short', day: 'numeric',
+      hour: '2-digit', minute: '2-digit', hour12: false,
+    });
+    const update = () => setTime(fmt.format(new Date()).replace(/,/g, ''));
+    update();
+    const t = setInterval(update, 10_000);
+    return () => clearInterval(t);
+  }, []);
+  return (
+    <header className="admin-gnome-bar">
+      <span className="admin-gnome-pill"><i /><i /><i /></span>
+      <span className="admin-gnome-clock">{time}</span>
+      <span className="admin-gnome-right">{children}</span>
+    </header>
+  );
+}
+
+/* ═══════════════════════════════════════════════════
+   Social Link Form  (Add / Edit)
+   ═══════════════════════════════════════════════════ */
+function SocialForm({ initial, onSave, onCancel }) {
+  const [form, setForm] = useState({ platform: 'github', label: '', url: '', ...initial });
+  const [busy, setBusy] = useState(false);
+  const [error, setError] = useState('');
+  const meta = SOCIAL_PLATFORMS[form.platform] || SOCIAL_PLATFORMS.website;
+  const PreviewIcon = meta.Icon;
+
+  async function submit(e) {
+    e.preventDefault();
+    if (!form.url.trim()) return;
+    setBusy(true);
+    setError('');
+    try {
+      await onSave(form);
+    } catch (err) {
+      setError(err.message);
+      setBusy(false);
+    }
+  }
+
+  const isEdit = !!initial?.id;
+
+  return (
+    <div className="admin-form-container">
+      <form className="admin-form" onSubmit={submit}>
+        <div className="form-group">
+          <label>Platform</label>
+          <div className="platform-grid">
+            {Object.entries(SOCIAL_PLATFORMS).map(([key, p]) => (
+              <button
+                type="button"
+                key={key}
+                className={`platform-option ${form.platform === key ? 'active' : ''}`}
+                onClick={() => setForm((f) => ({ ...f, platform: key }))}
+              >
+                <span className="platform-icon"><p.Icon /></span>
+                {p.label}
+              </button>
+            ))}
+          </div>
+        </div>
+
+        <div className="form-row">
+          <div className="form-group">
+            <label>Link / Address *</label>
+            <input
+              value={form.url}
+              onChange={(e) => setForm((f) => ({ ...f, url: e.target.value }))}
+              placeholder={meta.hint}
+              required
+            />
+          </div>
+          <div className="form-group">
+            <label>Label (tooltip)</label>
+            <input
+              value={form.label}
+              onChange={(e) => setForm((f) => ({ ...f, label: e.target.value }))}
+              placeholder={meta.label}
+            />
+          </div>
+        </div>
+
+        <div className="admin-dock-preview">
+          <span className="admin-section-label">Dock preview</span>
+          <span className="admin-dock-tile"><PreviewIcon /></span>
+          <span className="admin-dock-tip">{form.label || meta.label}</span>
+        </div>
+
+        {error && <div className="form-error">⚠ {error}</div>}
+
+        <div className="form-actions">
+          <button type="submit" className="btn-admin primary" disabled={busy}>
+            {busy ? 'Saving...' : isEdit ? 'Update Link' : 'Add Link'}
           </button>
           <button type="button" className="btn-admin" onClick={onCancel} disabled={busy}>
             Cancel
@@ -1015,7 +1147,7 @@ function BlogForm({ initial, onSave, onCancel }) {
                   position: 'absolute', top: 6, right: 6,
                   background: 'rgba(0,0,0,0.7)', color: '#fff',
                   border: 'none', padding: '0.2rem 0.5rem',
-                  cursor: 'pointer', fontFamily: 'var(--mono)', fontSize: '0.6rem',
+                  cursor: 'pointer', fontFamily: 'var(--mono)', fontSize: '0.74rem',
                 }}
               >
                 ✕ Remove
@@ -1026,7 +1158,7 @@ function BlogForm({ initial, onSave, onCancel }) {
             display: 'inline-flex', alignItems: 'center', gap: '0.5rem',
             padding: '0.5rem 1rem', border: '1px dashed var(--border)',
             cursor: uploading ? 'wait' : 'pointer', fontFamily: 'var(--mono)',
-            fontSize: '0.65rem', color: 'var(--muted)',
+            fontSize: '0.79rem', color: 'var(--muted)',
             opacity: uploading ? 0.5 : 1,
           }}>
             {'📷 ' + (form.coverImage ? 'Change Cover Image' : 'Upload Cover Image')}
@@ -1039,7 +1171,7 @@ function BlogForm({ initial, onSave, onCancel }) {
             />
           </label>
           {uploadMsg && (
-            <span style={{ fontFamily: 'var(--mono)', fontSize: '0.6rem', color: 'var(--cyan)', marginLeft: '0.8rem' }}>
+            <span style={{ fontFamily: 'var(--mono)', fontSize: '0.74rem', color: 'var(--cyan)', marginLeft: '0.8rem' }}>
               {uploadMsg}
             </span>
           )}
@@ -1061,14 +1193,14 @@ function BlogForm({ initial, onSave, onCancel }) {
           border: '1px solid var(--border)',
           borderLeft: '3px solid var(--cyan)',
           padding: '1.2rem',
-          background: 'rgba(0,229,255,0.03)',
+          background: 'rgba(233,84,32,0.03)',
           display: 'flex', flexDirection: 'column', gap: '0.9rem',
         }}>
-          <div style={{ fontFamily: 'var(--mono)', fontSize: '0.62rem', color: 'var(--cyan)', letterSpacing: '0.15em', textTransform: 'uppercase' }}>
+          <div style={{ fontFamily: 'var(--mono)', fontSize: '0.76rem', color: 'var(--cyan)', letterSpacing: '0.15em', textTransform: 'uppercase' }}>
             🔍 SEO Settings (optional)
           </div>
           <div className="form-group" style={{ margin: 0 }}>
-            <label style={{ fontSize: '0.65rem', color: 'var(--muted)' }}>
+            <label style={{ fontSize: '0.79rem', color: 'var(--muted)' }}>
               SEO Description
               <span style={{ color: 'var(--muted)', fontWeight: 400 }}> — shown in Google search results (max 160 chars)</span>
             </label>
@@ -1078,12 +1210,12 @@ function BlogForm({ initial, onSave, onCancel }) {
               placeholder="Leave blank to auto-use the excerpt. Custom description for Google..."
               style={{ minHeight: 64 }}
             />
-            <div style={{ fontFamily: 'var(--mono)', fontSize: '0.55rem', color: form.seoDescription.length > 140 ? '#ff6b6b' : 'var(--muted)', textAlign: 'right', marginTop: '0.25rem' }}>
+            <div style={{ fontFamily: 'var(--mono)', fontSize: '0.69rem', color: form.seoDescription.length > 140 ? '#ff6b6b' : 'var(--muted)', textAlign: 'right', marginTop: '0.25rem' }}>
               {form.seoDescription.length}/160 chars
             </div>
           </div>
           <div className="form-group" style={{ margin: 0 }}>
-            <label style={{ fontSize: '0.65rem', color: 'var(--muted)' }}>
+            <label style={{ fontSize: '0.79rem', color: 'var(--muted)' }}>
               SEO Keywords
               <span style={{ color: 'var(--muted)', fontWeight: 400 }}> — comma separated, specific to this post</span>
             </label>
@@ -1093,7 +1225,7 @@ function BlogForm({ initial, onSave, onCancel }) {
               onChange={(e) => handle('seoKeywords', e.target.value)}
               placeholder="e.g. machine learning tutorial, Python NLP, text classification Nepal"
             />
-            <div style={{ fontFamily: 'var(--mono)', fontSize: '0.55rem', color: 'var(--muted)', marginTop: '0.25rem' }}>
+            <div style={{ fontFamily: 'var(--mono)', fontSize: '0.69rem', color: 'var(--muted)', marginTop: '0.25rem' }}>
               💡 Tip: Use specific phrases people search for, e.g. "how to train NLP model Python"
             </div>
           </div>
@@ -1110,7 +1242,7 @@ function BlogForm({ initial, onSave, onCancel }) {
                 style={{
                   background: !previewMode ? 'var(--border)' : 'transparent',
                   border: '1px solid var(--border)', color: 'var(--text)',
-                  fontFamily: 'var(--mono)', fontSize: '0.58rem',
+                  fontFamily: 'var(--mono)', fontSize: '0.72rem',
                   padding: '0.25rem 0.6rem', cursor: 'pointer',
                 }}
               >
@@ -1122,7 +1254,7 @@ function BlogForm({ initial, onSave, onCancel }) {
                 style={{
                   background: previewMode ? 'var(--border)' : 'transparent',
                   border: '1px solid var(--border)', color: 'var(--text)',
-                  fontFamily: 'var(--mono)', fontSize: '0.58rem',
+                  fontFamily: 'var(--mono)', fontSize: '0.72rem',
                   padding: '0.25rem 0.6rem', cursor: 'pointer',
                 }}
               >
@@ -1149,7 +1281,7 @@ function BlogForm({ initial, onSave, onCancel }) {
                     style={{
                       background: 'var(--card)', border: '1px solid var(--border)',
                       color: 'var(--text)', fontFamily: 'var(--mono)',
-                      fontSize: '0.58rem', padding: '0.25rem 0.5rem',
+                      fontSize: '0.72rem', padding: '0.25rem 0.5rem',
                       cursor: uploading ? 'wait' : 'pointer',
                       ...(btn.style || {}),
                     }}
@@ -1328,6 +1460,10 @@ export default function AdminPanel() {
   const [certificatesList, setCertificatesList] = useState([]);
   const [certDownloading, setCertDownloading] = useState(null); // cert id or 'all'
 
+  // Social links state
+  const [socialsList, setSocialsList] = useState([]);
+  const [socialsSeeding, setSocialsSeeding] = useState(false);
+
   // Firebase Auth listener — auto-detects login state
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, (user) => {
@@ -1398,6 +1534,11 @@ export default function AdminPanel() {
     }
   }
 
+  // Load social links
+  async function loadSocials() {
+    setSocialsList(await getAdminSocials());
+  }
+
   useEffect(() => {
     if (authed) {
       loadProjects();
@@ -1406,6 +1547,7 @@ export default function AdminPanel() {
       loadExperiences();
       loadEducation();
       loadCertificates();
+      loadSocials();
     }
   }, [authed]);
 
@@ -1666,8 +1808,60 @@ export default function AdminPanel() {
     setCertDownloading(null);
   }
 
+  // Social link handlers — errors propagate to SocialForm, which shows them
+  async function handleAddSocial(form) {
+    await addSocial(form);
+    await loadSocials();
+    setView('list');
+    setToast('Link added — it now shows in the dock.');
+  }
+
+  async function handleUpdateSocial(form) {
+    await updateSocial(editTarget.id, form);
+    await loadSocials();
+    setView('list');
+    setEditTarget(null);
+    setToast('Link updated.');
+  }
+
+  async function handleDeleteSocial() {
+    try {
+      await deleteSocial(deleteTarget.id);
+      setToast('Link removed.');
+    } catch (err) {
+      setToast(`Delete failed: ${err.message}`);
+    }
+    await loadSocials();
+    setDeleteTarget(null);
+  }
+
+  async function handleMoveSocial(index, dir) {
+    const other = socialsList[index + dir];
+    if (!other) return;
+    try {
+      await swapSocialOrder(socialsList[index], other);
+      await loadSocials();
+    } catch (err) {
+      setToast(`Reorder failed: ${err.message}`);
+    }
+  }
+
+  async function handleSeedSocials() {
+    setSocialsSeeding(true);
+    try {
+      await seedSocialsFromDefaults();
+      await loadSocials();
+      setToast('GitHub & LinkedIn imported — you can edit them now.');
+    } catch (err) {
+      setToast(`Import failed: ${err.message}`);
+    }
+    setSocialsSeeding(false);
+  }
+
   function handleDeleteConfirm() {
-    if (deleteType === 'certificate') {
+    if (deleteType === 'social') {
+      handleDeleteSocial();
+    } else if (deleteType === 'certificate') {
       handleDeleteCertificate();
     } else if (deleteType === 'blog') {
       handleDeleteBlog();
@@ -1697,9 +1891,10 @@ export default function AdminPanel() {
   if (authLoading) {
     return (
       <div className="admin-overlay">
+        <GnomeBar />
         <div className="admin-login">
           <div className="admin-login-card" style={{ textAlign: 'center' }}>
-            <span className="login-icon">⏳</span>
+            <img className="login-avatar" src="/logo.png" alt="" />
             <p style={{ fontFamily: 'var(--mono)', color: 'var(--muted)', fontSize: '0.7rem' }}>Checking authentication...</p>
           </div>
         </div>
@@ -1711,11 +1906,12 @@ export default function AdminPanel() {
   if (!authed) {
     return (
       <div className="admin-overlay">
+        <GnomeBar><PowerIcon /></GnomeBar>
         <div className="admin-login">
           <div className="admin-login-card">
-            <span className="login-icon">🔐</span>
-            <h1>Admin Panel</h1>
-            <p className="login-subtitle">portfolio management system</p>
+            <img className="login-avatar" src="/logo.png" alt="" />
+            <h1>Devesh Kumar Mandal</h1>
+            <p className="login-subtitle">Portfolio Admin</p>
             {error && <div className="error-msg">⚠ {error}</div>}
             {resetSent && <div className="success-msg" style={{
               background: 'rgba(57, 255, 20, 0.08)',
@@ -1723,7 +1919,7 @@ export default function AdminPanel() {
               color: 'var(--neon)',
               padding: '0.8rem',
               fontFamily: 'var(--mono)',
-              fontSize: '0.65rem',
+              fontSize: '0.79rem',
               marginBottom: '0.5rem',
               lineHeight: 1.6,
             }}>✓ Password reset email sent to <strong>{email}</strong>. Check your inbox and spam folder.</div>}
@@ -1750,7 +1946,7 @@ export default function AdminPanel() {
                 />
               </div>
               <button type="submit" className="btn-admin primary" style={{ width: '100%', justifyContent: 'center' }}>
-                🔐 Sign In →
+                Sign In →
               </button>
               <button
                 type="button"
@@ -1760,7 +1956,7 @@ export default function AdminPanel() {
                   border: 'none',
                   color: 'var(--cyan)',
                   fontFamily: 'var(--mono)',
-                  fontSize: '0.6rem',
+                  fontSize: '0.74rem',
                   cursor: 'pointer',
                   textDecoration: 'underline',
                   opacity: 0.8,
@@ -1773,7 +1969,7 @@ export default function AdminPanel() {
               <button
                 className="btn-admin back"
                 onClick={() => router.push('/')}
-                style={{ fontSize: '0.6rem' }}
+                style={{ fontSize: '0.74rem' }}
               >
                 ← Back to Portfolio
               </button>
@@ -1787,119 +1983,63 @@ export default function AdminPanel() {
   /* ─── Dashboard ──────────────────────────────────── */
   return (
     <div className="admin-overlay">
+      <GnomeBar>
+        <button className="admin-gnome-btn" onClick={() => router.push('/')}><HomeIcon /> Portfolio</button>
+        <button className="admin-gnome-btn" onClick={handleLogout}><PowerIcon /> Log Out</button>
+      </GnomeBar>
+
       <div className="admin-dash">
-        {/* Top bar */}
+        {/* Window titlebar (GNOME Settings layout) */}
         <div className="admin-topbar">
-          <h1>⚡ Admin Dashboard</h1>
+          <div className="admin-topbar-side">Portfolio Admin</div>
+          <h1>{TABS.find((t) => t.id === activeTab)?.label}</h1>
           <div className="admin-topbar-actions">
-            <button className="btn-admin small" onClick={() => router.push('/')}>
-              ← Portfolio
-            </button>
-            <button className="btn-admin small danger" onClick={handleLogout}>
-              Logout
-            </button>
+            <span className="admin-win-btn" aria-hidden="true">–</span>
+            <span className="admin-win-btn" aria-hidden="true">▢</span>
+            <button className="admin-win-btn close" onClick={() => router.push('/')} aria-label="Close admin">✕</button>
           </div>
         </div>
 
+        <div className="admin-body">
+          {/* Sidebar — section switcher */}
+          <nav className="admin-tabs">
+            {TABS.map(({ id, label, Icon }) => (
+              <button
+                key={id}
+                className={`admin-tab ${activeTab === id ? 'active' : ''}`}
+                onClick={() => switchTab(id)}
+              >
+                <span className="admin-tab-icon"><Icon /></span>
+                {label}
+              </button>
+            ))}
+          </nav>
+
+          <main className="admin-main">
         {/* Stats */}
-        <div className="admin-stats">
-          <div className="admin-stat-card">
-            <div className="admin-stat-icon">📂</div>
-            <div className="admin-stat-info">
-              <h3>{totalProjects}</h3>
-              <p>Total Projects</p>
-            </div>
+        {view === 'list' && (
+          <div className="admin-stats">
+            {[
+              { Icon: FolderIcon, n: totalProjects, label: 'Projects' },
+              { Icon: StarIcon, n: featuredCount, label: 'Featured' },
+              { Icon: DocIcon, n: blogsList.filter((b) => b.status === 'published').length, label: 'Published' },
+              { Icon: DraftIcon, n: blogsList.filter((b) => !b.status || b.status === 'draft').length, label: 'Drafts' },
+              { Icon: MonitorIcon, n: skillsList.length || staticSkills.length, label: 'Skills' },
+              { Icon: BriefcaseIcon, n: experienceList.length || staticExperience.length, label: 'Experience' },
+              { Icon: CapIcon, n: educationList.length || staticEducation.length, label: 'Education' },
+              { Icon: AwardIcon, n: certificatesList.length, label: 'Certificates' },
+              { Icon: LinkIcon, n: socialsList.length, label: 'Social Links' },
+            ].map(({ Icon, n, label }) => (
+              <div key={label} className="admin-stat-card">
+                <div className="admin-stat-icon"><Icon /></div>
+                <div className="admin-stat-info">
+                  <h3>{n}</h3>
+                  <p>{label}</p>
+                </div>
+              </div>
+            ))}
           </div>
-          <div className="admin-stat-card">
-            <div className="admin-stat-icon">⭐</div>
-            <div className="admin-stat-info">
-              <h3>{featuredCount}</h3>
-              <p>Featured</p>
-            </div>
-          </div>
-          <div className="admin-stat-card">
-            <div className="admin-stat-icon">📝</div>
-            <div className="admin-stat-info">
-              <h3>{blogsList.filter(b => b.status === 'published').length}</h3>
-              <p>Published Blogs</p>
-            </div>
-          </div>
-          <div className="admin-stat-card">
-            <div className="admin-stat-icon">📋</div>
-            <div className="admin-stat-info">
-              <h3>{blogsList.filter(b => !b.status || b.status === 'draft').length}</h3>
-              <p>Drafts</p>
-            </div>
-          </div>
-          <div className="admin-stat-card">
-            <div className="admin-stat-icon">🛠️</div>
-            <div className="admin-stat-info">
-              <h3>{skillsList.length || staticSkills.length}</h3>
-              <p>Skills</p>
-            </div>
-          </div>
-          <div className="admin-stat-card">
-            <div className="admin-stat-icon">💼</div>
-            <div className="admin-stat-info">
-              <h3>{experienceList.length || staticExperience.length}</h3>
-              <p>Experience</p>
-            </div>
-          </div>
-          <div className="admin-stat-card">
-            <div className="admin-stat-icon">🎓</div>
-            <div className="admin-stat-info">
-              <h3>{educationList.length || staticEducation.length}</h3>
-              <p>Education</p>
-            </div>
-          </div>
-          <div className="admin-stat-card">
-            <div className="admin-stat-icon">🏅</div>
-            <div className="admin-stat-info">
-              <h3>{certificatesList.length}</h3>
-              <p>Certificates</p>
-            </div>
-          </div>
-        </div>
-
-        {/* Tab switcher */}
-        <div className="admin-tabs">
-          <button
-            className={`admin-tab ${activeTab === 'projects' ? 'active' : ''}`}
-            onClick={() => switchTab('projects')}
-          >
-            📂 Projects
-          </button>
-          <button
-            className={`admin-tab ${activeTab === 'blogs' ? 'active' : ''}`}
-            onClick={() => switchTab('blogs')}
-          >
-            📝 Blog Posts
-          </button>
-          <button
-            className={`admin-tab ${activeTab === 'skills' ? 'active' : ''}`}
-            onClick={() => switchTab('skills')}
-          >
-            🛠️ Skills
-          </button>
-          <button
-            className={`admin-tab ${activeTab === 'experience' ? 'active' : ''}`}
-            onClick={() => switchTab('experience')}
-          >
-            💼 Experience
-          </button>
-          <button
-            className={`admin-tab ${activeTab === 'education' ? 'active' : ''}`}
-            onClick={() => switchTab('education')}
-          >
-            🎓 Education
-          </button>
-          <button
-            className={`admin-tab ${activeTab === 'certificates' ? 'active' : ''}`}
-            onClick={() => switchTab('certificates')}
-          >
-            🏅 Certificates
-          </button>
-        </div>
+        )}
 
         {/* ═══ PROJECTS TAB ═══ */}
         {activeTab === 'projects' && view === 'list' && (
@@ -2171,7 +2311,7 @@ export default function AdminPanel() {
                   gap: '1rem',
                   padding: '1.2rem',
                   border: '1px solid var(--border)',
-                  background: 'rgba(0,229,255,0.02)',
+                  background: 'rgba(233,84,32,0.02)',
                 }}>
                   {(skillsList.length > 0 ? skillsList : staticSkills).map((skill) => (
                     <div
@@ -2192,7 +2332,7 @@ export default function AdminPanel() {
                       }}
                     >
                       <div style={{ fontSize: '1.5rem', marginBottom: '0.5rem' }}>{skill.icon}</div>
-                      <div style={{ fontFamily: 'var(--mono)', fontSize: '0.66rem', color: 'var(--text)', letterSpacing: '0.04em' }}>
+                      <div style={{ fontFamily: 'var(--mono)', fontSize: '0.8rem', color: 'var(--text)', letterSpacing: '0.04em' }}>
                         {skill.name}
                       </div>
                       <div style={{
@@ -2206,7 +2346,7 @@ export default function AdminPanel() {
                           transition: 'width 0.5s ease',
                         }} />
                       </div>
-                      <div style={{ fontFamily: 'var(--mono)', fontSize: '0.55rem', color: 'var(--muted)', marginTop: '0.3rem' }}>
+                      <div style={{ fontFamily: 'var(--mono)', fontSize: '0.69rem', color: 'var(--muted)', marginTop: '0.3rem' }}>
                         {skill.category}
                       </div>
                     </div>
@@ -2318,7 +2458,7 @@ export default function AdminPanel() {
                 <div style={{
                   padding: '1.2rem 1.2rem 0.5rem 2.5rem',
                   border: '1px solid var(--border)',
-                  background: 'rgba(0,229,255,0.02)',
+                  background: 'rgba(233,84,32,0.02)',
                   position: 'relative',
                   borderLeft: '1px solid',
                   borderImage: 'linear-gradient(180deg, var(--cyan), var(--blue2), transparent) 1',
@@ -2331,11 +2471,11 @@ export default function AdminPanel() {
                         background: item.current ? 'var(--cyan)' : 'var(--muted)',
                         boxShadow: item.current ? '0 0 12px var(--cyan)' : 'none',
                       }} />
-                      <div style={{ fontFamily: 'var(--mono)', fontSize: '0.63rem', color: 'var(--cyan)', letterSpacing: '0.1em', textTransform: 'uppercase', marginBottom: '0.2rem' }}>
+                      <div style={{ fontFamily: 'var(--mono)', fontSize: '0.77rem', color: 'var(--cyan)', letterSpacing: '0.1em', textTransform: 'uppercase', marginBottom: '0.2rem' }}>
                         {item.period} · {item.duration}
                       </div>
                       <div style={{ fontSize: '0.95rem', fontWeight: 700, color: 'var(--text)' }}>{item.role}</div>
-                      <div style={{ fontFamily: 'var(--mono)', fontSize: '0.65rem', color: 'var(--muted)' }}>
+                      <div style={{ fontFamily: 'var(--mono)', fontSize: '0.79rem', color: 'var(--muted)' }}>
                         {item.company} · {item.type} · {item.location}
                       </div>
                     </div>
@@ -2452,7 +2592,7 @@ export default function AdminPanel() {
                   gap: '1.4rem',
                   padding: '1.2rem',
                   border: '1px solid var(--border)',
-                  background: 'rgba(0,229,255,0.02)',
+                  background: 'rgba(233,84,32,0.02)',
                 }}>
                   {(educationList.length > 0 ? educationList : staticEducation).map((item) => (
                     <div
@@ -2475,17 +2615,17 @@ export default function AdminPanel() {
                         position: 'absolute', top: 0, left: 0, right: 0, height: 2,
                         background: 'linear-gradient(90deg, var(--blue2), var(--cyan))',
                       }} />
-                      <div style={{ fontFamily: 'var(--mono)', fontSize: '0.62rem', color: 'var(--cyan)', letterSpacing: '0.12em', textTransform: 'uppercase', marginBottom: '0.5rem' }}>
+                      <div style={{ fontFamily: 'var(--mono)', fontSize: '0.76rem', color: 'var(--cyan)', letterSpacing: '0.12em', textTransform: 'uppercase', marginBottom: '0.5rem' }}>
                         {item.degree}
                       </div>
                       <h3 style={{ fontSize: '0.95rem', fontWeight: 700, color: 'var(--text)', marginBottom: '0.4rem', lineHeight: 1.3 }}>
                         {item.school}
                       </h3>
-                      <div style={{ fontFamily: 'var(--mono)', fontSize: '0.62rem', color: 'var(--muted)' }}>
+                      <div style={{ fontFamily: 'var(--mono)', fontSize: '0.76rem', color: 'var(--muted)' }}>
                         {item.period}
                       </div>
                       {item.current && (
-                        <div style={{ marginTop: '0.7rem', fontFamily: 'var(--mono)', fontSize: '0.62rem', color: 'var(--neon)' }}>
+                        <div style={{ marginTop: '0.7rem', fontFamily: 'var(--mono)', fontSize: '0.76rem', color: 'var(--neon)' }}>
                           ● IN PROGRESS
                         </div>
                       )}
@@ -2676,6 +2816,90 @@ export default function AdminPanel() {
             </div>
           </>
         )}
+
+        {/* ═══ SOCIAL LINKS TAB ═══ */}
+        {activeTab === 'socials' && view === 'list' && (
+          <>
+            <div className="admin-section-header">
+              <div>
+                <div className="admin-section-label">// manage</div>
+                <h2>Social Links</h2>
+              </div>
+              <div style={{ display: 'flex', gap: '0.6rem', flexWrap: 'wrap' }}>
+                {socialsList.length === 0 && (
+                  <button className="btn-admin" onClick={handleSeedSocials} disabled={socialsSeeding}>
+                    {socialsSeeding ? 'Importing...' : 'Import GitHub & LinkedIn'}
+                  </button>
+                )}
+                <button className="btn-admin primary" onClick={() => setView('add')}>
+                  + Add Link
+                </button>
+              </div>
+            </div>
+
+            <p className="form-help" style={{ marginBottom: '1.2rem' }}>
+              These appear in the website dock (left side) and the Contact window, in this order.
+            </p>
+
+            {socialsList.length === 0 ? (
+              <div className="admin-empty">
+                <h3>No links saved yet</h3>
+                <p>The site currently shows your default GitHub and LinkedIn. Import them to edit, or add a new link.</p>
+              </div>
+            ) : (
+              <div className="admin-project-list">
+                {socialsList.map((link, i) => {
+                  const Icon = socialIcon(link.platform);
+                  return (
+                    <div key={link.id} className="admin-project-row">
+                      <span className="admin-dock-tile"><Icon /></span>
+                      <div className="admin-project-info">
+                        <h3>{link.label || SOCIAL_PLATFORMS[link.platform]?.label || 'Link'}</h3>
+                        <p>{link.url}</p>
+                      </div>
+                      <div className="admin-project-actions">
+                        <button className="btn-admin small" onClick={() => handleMoveSocial(i, -1)} disabled={i === 0} aria-label="Move up">↑</button>
+                        <button className="btn-admin small" onClick={() => handleMoveSocial(i, 1)} disabled={i === socialsList.length - 1} aria-label="Move down">↓</button>
+                        <button className="btn-admin small" onClick={() => startEdit(link)}>Edit</button>
+                        <button className="btn-admin small danger" onClick={() => { setDeleteTarget(link); setDeleteType('social'); }}>Delete</button>
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            )}
+          </>
+        )}
+
+        {activeTab === 'socials' && view === 'add' && (
+          <>
+            <button className="btn-admin back" onClick={() => setView('list')}>← Back to Social Links</button>
+            <div style={{ marginTop: '1rem' }}>
+              <div className="admin-section-label">// new link</div>
+              <h2 style={{ fontSize: '1.3rem', fontWeight: 800, marginBottom: '1.5rem' }}>Add a Social Link</h2>
+              <SocialForm onSave={handleAddSocial} onCancel={() => setView('list')} />
+            </div>
+          </>
+        )}
+
+        {activeTab === 'socials' && view === 'edit' && editTarget && (
+          <>
+            <button className="btn-admin back" onClick={() => { setView('list'); setEditTarget(null); }}>← Back to Social Links</button>
+            <div style={{ marginTop: '1rem' }}>
+              <div className="admin-section-label">// edit link</div>
+              <h2 style={{ fontSize: '1.3rem', fontWeight: 800, marginBottom: '1.5rem' }}>
+                Edit: {editTarget.label || SOCIAL_PLATFORMS[editTarget.platform]?.label}
+              </h2>
+              <SocialForm
+                initial={editTarget}
+                onSave={handleUpdateSocial}
+                onCancel={() => { setView('list'); setEditTarget(null); }}
+              />
+            </div>
+          </>
+        )}
+          </main>
+        </div>
       </div>
 
       {/* Toast */}
@@ -2684,8 +2908,8 @@ export default function AdminPanel() {
       {/* Delete modal */}
       {deleteTarget && (
         <DeleteModal
-          title={deleteTarget.title || deleteTarget.name || deleteTarget.role || deleteTarget.degree}
-          itemType={deleteType === 'certificate' ? 'Certificate' : deleteType === 'blog' ? 'Blog Post' : deleteType === 'skill' ? 'Skill' : deleteType === 'experience' ? 'Experience' : deleteType === 'education' ? 'Education' : 'Project'}
+          title={deleteTarget.title || deleteTarget.name || deleteTarget.role || deleteTarget.degree || deleteTarget.label || deleteTarget.url}
+          itemType={deleteType === 'social' ? 'Social Link' : deleteType === 'certificate' ? 'Certificate' : deleteType === 'blog' ? 'Blog Post' : deleteType === 'skill' ? 'Skill' : deleteType === 'experience' ? 'Experience' : deleteType === 'education' ? 'Education' : 'Project'}
           onConfirm={handleDeleteConfirm}
           onCancel={() => setDeleteTarget(null)}
         />

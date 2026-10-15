@@ -3,12 +3,12 @@
 import { useState, useEffect } from 'react';
 import { usePathname, useRouter } from 'next/navigation';
 import { motion, AnimatePresence } from 'framer-motion';
-import { personal } from '../data/portfolio';
+import { getSocials, DEFAULT_SOCIALS } from '../data/socialStore';
 import { useTheme } from './useTheme';
 import {
   HomeIcon, UserIcon, MonitorIcon, BriefcaseIcon, CapIcon, AwardIcon, FolderIcon,
-  DocIcon, MailIcon, GridIcon, GithubIcon, LinkedinIcon, SunIcon, MoonIcon,
-  WifiIcon, VolumeIcon, PowerIcon,
+  DocIcon, MailIcon, GridIcon, SunIcon, MoonIcon,
+  WifiIcon, VolumeIcon, PowerIcon, SOCIAL_PLATFORMS, socialIcon,
 } from './Icons';
 
 // `core` apps stay in the dock on phones; the rest live in the app grid
@@ -57,6 +57,7 @@ function DockItem({ app, active, onClick }) {
 export default function Navbar() {
   const [gridOpen, setGridOpen] = useState(false);
   const [active, setActive] = useState('hero');
+  const [socials, setSocials] = useState(DEFAULT_SOCIALS);
   const { theme, toggle } = useTheme();
   const pathname = usePathname();
   const router = useRouter();
@@ -75,6 +76,11 @@ export default function Navbar() {
     sections.forEach((s) => obs.observe(s));
     return () => obs.disconnect();
   }, [pathname]);
+
+  // Social links are managed from the admin panel
+  useEffect(() => {
+    getSocials().then(setSocials).catch(() => {});
+  }, []);
 
   // Close the app grid with Escape
   useEffect(() => {
@@ -152,14 +158,24 @@ export default function Navbar() {
           ))}
         </div>
         <span className="dock-sep" />
-        <a className="dock-item dock-ext" href={personal.github} target="_blank" rel="noreferrer" aria-label="GitHub">
-          <span className="dock-tile"><GithubIcon /></span>
-          <span className="dock-label">GitHub</span>
-        </a>
-        <a className="dock-item dock-ext" href={personal.linkedin} target="_blank" rel="noreferrer" aria-label="LinkedIn">
-          <span className="dock-tile"><LinkedinIcon /></span>
-          <span className="dock-label">LinkedIn</span>
-        </a>
+        {socials.map((s) => {
+          const Icon = socialIcon(s.platform);
+          const label = s.label || SOCIAL_PLATFORMS[s.platform]?.label || 'Link';
+          const external = /^https?:/i.test(s.url);
+          return (
+            <a
+              key={s.id || s.url}
+              className="dock-item dock-ext"
+              href={s.url}
+              target={external ? '_blank' : undefined}
+              rel={external ? 'noreferrer' : undefined}
+              aria-label={label}
+            >
+              <span className="dock-tile"><Icon /></span>
+              <span className="dock-label">{label}</span>
+            </a>
+          );
+        })}
         <span className="dock-spacer" />
         <button className="dock-item" onClick={() => setGridOpen((o) => !o)} aria-label="Show applications">
           <span className="dock-tile" style={{ background: 'none', border: 'none', boxShadow: 'none' }}><GridIcon /></span>
