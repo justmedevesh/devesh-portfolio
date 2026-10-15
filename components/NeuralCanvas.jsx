@@ -34,42 +34,46 @@ export default function NeuralCanvas() {
     renderer.setSize(window.innerWidth, window.innerHeight);
 
     const scene = new THREE.Scene();
-    scene.fog = new THREE.FogExp2(0x05060b, 0.055);
+    scene.fog = new THREE.FogExp2(0x111111, 0.055);
     const camera = new THREE.PerspectiveCamera(60, window.innerWidth / window.innerHeight, 0.1, 100);
     camera.position.set(0, 0.6, 8);
 
     /* ── Particle nebula ───────────────────────────── */
     const N = small ? 700 : 1600;
     const positions = new Float32Array(N * 3);
-    const colors = new Float32Array(N * 3);
-    const cA = new THREE.Color('#22e6ff');
-    const cB = new THREE.Color('#8b5cf6');
-    const cC = new THREE.Color('#ff3d9a');
-    const tmp = new THREE.Color();
     for (let i = 0; i < N; i++) {
       positions[i * 3] = (Math.random() - 0.5) * 34;
       positions[i * 3 + 1] = (Math.random() - 0.3) * 18;
       positions[i * 3 + 2] = (Math.random() - 0.5) * 24;
-      const t = Math.random();
-      tmp.copy(t < 0.5 ? cA : cB).lerp(t < 0.5 ? cB : cC, Math.random() * 0.6);
-      colors.set([tmp.r, tmp.g, tmp.b], i * 3);
     }
     const pGeo = new THREE.BufferGeometry();
     pGeo.setAttribute('position', new THREE.BufferAttribute(positions, 3));
-    pGeo.setAttribute('color', new THREE.BufferAttribute(colors, 3));
     const dot = makeDotTexture();
     const pMat = new THREE.PointsMaterial({
-      size: 0.09, map: dot, vertexColors: true, transparent: true, opacity: 0.85,
-      depthWrite: false, blending: THREE.AdditiveBlending, sizeAttenuation: true,
+      size: 0.07, map: dot, transparent: true, opacity: 0.5,
+      depthWrite: false, sizeAttenuation: true,
     });
     const nebula = new THREE.Points(pGeo, pMat);
     scene.add(nebula);
 
     /* ── Infinite grid floor ───────────────────────── */
-    const grid = new THREE.GridHelper(80, 80, 0x8b5cf6, 0x22e6ff);
+    const grid = new THREE.GridHelper(80, 80, 0x888888, 0x888888);
     grid.material.transparent = true;
-    grid.material.opacity = 0.16;
     grid.material.depthWrite = false;
+
+    /* ── Monochrome palette that follows the site theme ── */
+    let gridMax = 0.12;
+    const applyTheme = () => {
+      const light = document.documentElement.dataset.theme === 'light';
+      pMat.color.set(light ? '#222222' : '#ffffff');
+      pMat.opacity = light ? 0.35 : 0.45;
+      grid.material.color.set(light ? '#555555' : '#9a9a9a');
+      gridMax = light ? 0.14 : 0.1;
+      scene.fog.color.set(light ? '#e8e8e8' : '#111111');
+      if (reduced) renderer.render(scene, camera);
+    };
+    applyTheme();
+    window.addEventListener('dkm:theme', applyTheme);
     grid.position.y = -3.2;
     scene.add(grid);
 
@@ -103,7 +107,7 @@ export default function NeuralCanvas() {
 
       const scrollDepth = Math.min(scrollY / 2500, 1.6);
       // Grid belongs to the hero; fade it so it doesn't stripe behind content
-      grid.material.opacity = 0.16 * Math.max(0, 1 - scrollY / 900);
+      grid.material.opacity = gridMax * Math.max(0, 1 - scrollY / 900);
       camera.position.x += (mx * 0.9 - camera.position.x) * 0.03;
       camera.position.y += (0.6 - my * 0.5 - scrollDepth * 1.4 - camera.position.y) * 0.03;
       camera.lookAt(0, -scrollDepth * 1.2, 0);
@@ -118,6 +122,7 @@ export default function NeuralCanvas() {
       window.removeEventListener('mousemove', onMouse);
       window.removeEventListener('scroll', onScroll);
       window.removeEventListener('resize', onResize);
+      window.removeEventListener('dkm:theme', applyTheme);
       pGeo.dispose(); pMat.dispose(); dot.dispose();
       grid.geometry.dispose(); grid.material.dispose();
       renderer.dispose();

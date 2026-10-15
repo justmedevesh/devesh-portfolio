@@ -6,6 +6,7 @@ import SectionWrapper, { SectionHead } from './SectionWrapper';
 import TiltCard from './TiltCard';
 import Reveal from './Reveal';
 import { getDisplayExperiences } from '../data/experienceStore';
+import { BriefcaseIcon } from './Icons';
 
 function ExpItem({ item, index }) {
   return (
@@ -44,8 +45,8 @@ export default function Experience() {
   }, []);
 
   return (
-    <SectionWrapper id="experience">
-      <SectionHead index="03" label="experience.log" title={<>Where I&apos;ve <span className="grad-text">shipped.</span></>} />
+    <SectionWrapper id="experience" title="experience.log" app="Logs" Icon={BriefcaseIcon}>
+      <SectionHead index="03" label="experience" title={<>Where I&apos;ve <span className="grad-text">shipped.</span></>} />
       <div ref={timelineRef} className="timeline">
         <div className="timeline-track">
           <motion.div className="timeline-fill" style={{ scaleY }} />

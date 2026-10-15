@@ -6,6 +6,7 @@ import SectionWrapper, { SectionHead } from './SectionWrapper';
 import { useReveal } from './useReveal';
 import { getAllProjects } from '../data/projectStore';
 import ProjectCard from './ProjectCard';
+import { FolderIcon } from './Icons';
 
 export default function Projects() {
   const { ref, visible } = useReveal(0.05);
@@ -23,8 +24,8 @@ export default function Projects() {
   }, []);
 
   return (
-    <SectionWrapper id="projects">
-      <SectionHead index="06" label="projects.dir" title={<>Things I&apos;ve <span className="grad-text">built.</span></>} />
+    <SectionWrapper id="projects" title="~/Projects" app="Files" Icon={FolderIcon}>
+      <SectionHead index="06" label="projects" title={<>Things I&apos;ve <span className="grad-text">built.</span></>} />
 
       <div ref={ref}>
       {loading ? (

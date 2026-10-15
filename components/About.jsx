@@ -1,10 +1,9 @@
 'use client';
 
-import { useState, useEffect } from 'react';
 import SectionWrapper, { SectionHead } from './SectionWrapper';
 import TiltCard from './TiltCard';
 import Reveal from './Reveal';
-import { useReveal } from './useReveal';
+import { DocIcon } from './Icons';
 import { personal } from '../data/portfolio';
 
 const HIGHLIGHTS = ["Master's in Data Science", 'Data Science Intern', 'tech-focused', 'initiative', 'real world'];
@@ -20,61 +19,52 @@ function HighlightText({ text }) {
   );
 }
 
-function Terminal() {
+/** about.md rendered like a gedit buffer with line numbers. */
+function Editor() {
   const lines = [
-    { cmd: 'whoami', out: personal.name },
-    { cmd: 'cat bio.txt', out: `"${personal.bio}"` },
-    { cmd: 'echo $LOCATION', out: personal.location },
-    { cmd: 'python -c "import ml; ml.status()"', out: 'models: trained · coffee: critical' },
-    { cmd: 'status --hire', out: '✔ OPEN TO OPPORTUNITIES', hot: true },
+    <span key="h" className="h"># {personal.name}</span>,
+    <span key="r"><span className="k">**role**</span>: {personal.title}</span>,
+    '',
+    ...personal.about.flatMap((p, i) => [<HighlightText key={`p${i}`} text={p} />, '']),
+    <span key="s"><span className="k">&gt;</span> {personal.bio}</span>,
   ];
 
-  const { ref, visible } = useReveal(0.3);
-  const [shown, setShown] = useState(0);
-
-  useEffect(() => {
-    if (visible && shown < lines.length) {
-      const t = setTimeout(() => setShown((s) => s + 1), shown === 0 ? 300 : 550);
-      return () => clearTimeout(t);
-    }
-  }, [visible, shown, lines.length]);
-
+  // One row per line so wrapped text keeps its line number aligned
   return (
-    <div ref={ref}>
-      <TiltCard className="glass-card terminal" max={6}>
-        <div className="terminal-bar">
-          <i style={{ background: '#ff5f57' }} />
-          <i style={{ background: '#febc2e' }} />
-          <i style={{ background: '#28c840' }} />
-          <span>devesh@neural-core: ~</span>
+    <div className="editor">
+      {lines.map((line, i) => (
+        <div key={i} className="editor-row">
+          <span className="editor-ln" aria-hidden="true">{i + 1}</span>
+          <div className="editor-line">{line || '\u00a0'}</div>
         </div>
-        <div className="terminal-body pop-sm">
-          {lines.slice(0, shown).map((line) => (
-            <div key={line.cmd}>
-              <div><span className="p">❯ </span><span className="c">{line.cmd}</span></div>
-              <div className={`o ${line.hot ? 'hot' : ''}`}>{line.out}</div>
-            </div>
-          ))}
-          {shown >= lines.length && (
-            <div><span className="p">❯ </span><span className="brand-caret">█</span></div>
-          )}
-        </div>
-      </TiltCard>
+      ))}
     </div>
   );
 }
 
+const FACTS = [
+  { k: 'Location', v: personal.location },
+  { k: 'Focus', v: 'Machine Learning · NLP · Data' },
+  { k: 'Currently', v: "Master's in Data Science" },
+  { k: 'Status', v: 'Open to opportunities', hot: true },
+];
+
 export default function About() {
   return (
-    <SectionWrapper id="about">
-      <SectionHead index="01" label="about.md" title={<>Turning noise into <span className="grad-text">signal.</span></>} />
+    <SectionWrapper id="about" title="about.md" app="Text Editor" Icon={DocIcon}>
+      <SectionHead index="01" label="about" title={<>Turning noise into <span className="grad-text">signal.</span></>} />
       <div className="about-grid">
-        <Reveal className="about-text">
-          {personal.about.map((p, i) => <HighlightText key={i} text={p} />)}
-        </Reveal>
-        <Reveal delay={150}>
-          <Terminal />
-        </Reveal>
+        <Reveal><Editor /></Reveal>
+        <div className="about-facts">
+          {FACTS.map((f, i) => (
+            <Reveal key={f.k} delay={i * 90}>
+              <TiltCard className="glass-card fact" max={8}>
+                <div className="fact-k">{f.k}</div>
+                <div className={`fact-v ${f.hot ? 'hot' : ''}`}>{f.v}</div>
+              </TiltCard>
+            </Reveal>
+          ))}
+        </div>
       </div>
     </SectionWrapper>
   );

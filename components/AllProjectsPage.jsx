@@ -2,6 +2,8 @@
 import { useState, useEffect } from 'react';
 
 import { motion } from 'framer-motion';
+import { Window } from './SectionWrapper';
+import { FolderIcon } from './Icons';
 import { getAllProjects } from '../data/projectStore';
 import ProjectCard from './ProjectCard';
 
@@ -28,6 +30,7 @@ export default function AllProjectsPage() {
   return (
     <>
       <div className="all-projects-page">
+        <Window title="~/Projects" app="Files" Icon={FolderIcon}>
         {/* Header */}
         <motion.div
           className="all-projects-header"
@@ -103,6 +106,7 @@ export default function AllProjectsPage() {
           </div>
         )}
 
+        </Window>
       </div>
     </>
   );

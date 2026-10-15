@@ -5,6 +5,7 @@ import Link from 'next/link';
 import SectionWrapper, { SectionHead } from './SectionWrapper';
 import { getPublishedBlogs } from '../data/blogStore';
 import BlogCard from './BlogCard';
+import { DocIcon } from './Icons';
 
 export default function Blog() {
   const [blogs, setBlogs] = useState([]);
@@ -31,8 +32,8 @@ export default function Blog() {
   }, [blogs.length]);
 
   return (
-    <SectionWrapper id="blog">
-      <SectionHead index="07" label="blog.md" title={<>Notes from the <span className="grad-text">lab.</span></>} />
+    <SectionWrapper id="blog" title="~/Documents/Blog" app="Files" Icon={DocIcon}>
+      <SectionHead index="07" label="blog" title={<>Notes from the <span className="grad-text">lab.</span></>} />
 
       {loading ? (
         <div className="projects-grid">

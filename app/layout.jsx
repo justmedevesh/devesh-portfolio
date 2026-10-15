@@ -2,6 +2,7 @@
 // drops ClientProviders from the RSC client manifest on Next 15.5
 import BootLoader from '../components/BootLoader';
 import ClientProviders from '../components/ClientProviders';
+import { themeInitScript } from '../components/themeScript';
 import '../styles/globals.css';
 
 export const metadata = {
@@ -53,13 +54,14 @@ export const metadata = {
 };
 
 export const viewport = {
-  themeColor: '#020b18',
+  themeColor: '#0b0b0b',
 };
 
 export default function RootLayout({ children }) {
   return (
-    <html lang="en">
+    <html lang="en" data-theme="dark" suppressHydrationWarning>
       <head>
+        <script dangerouslySetInnerHTML={{ __html: themeInitScript }} />
         <script
           type="application/ld+json"
           dangerouslySetInnerHTML={{
@@ -90,7 +92,7 @@ export default function RootLayout({ children }) {
         />
       </head>
       <body>
-        {/* Client-only: NeuralCanvas (Three.js) + Cursor — loaded with ssr:false */}
+        {/* Client-only: NeuralCanvas (Three.js) — loaded with ssr:false */}
         <BootLoader />
         <ClientProviders />
         {children}

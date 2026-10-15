@@ -5,6 +5,7 @@ import SectionWrapper, { SectionHead } from './SectionWrapper';
 import TiltCard from './TiltCard';
 import { useReveal } from './useReveal';
 import { getDisplaySkills } from '../data/skillStore';
+import { MonitorIcon } from './Icons';
 
 /**
  * CSS-3D tag sphere: names are spread over a sphere (Fibonacci lattice) and
@@ -97,19 +98,19 @@ function SkillSphere({ names }) {
 function SkillCard({ skill, visible, delay }) {
   return (
     <div className={`reveal ${visible ? 'is-visible' : ''}`} style={{ '--d': `${delay}ms` }}>
-      <TiltCard className="glass-card skill-card" max={14}>
-        <div className="skill-top pop-sm">
-          <div className="skill-icon">{skill.icon}</div>
-          <div>
-            <div className="skill-name">{skill.name}</div>
-            <div className="skill-cat">{skill.category}</div>
+      <TiltCard className="glass-card skill-card" max={6}>
+        <div className="skill-icon">{skill.icon}</div>
+        <div>
+          <div className="skill-top">
+            <span className="skill-name">{skill.name}</span>
+            <span className="skill-cat">{skill.category}</span>
           </div>
-        </div>
-        <div className="skill-bar">
-          <div
-            className="skill-bar-fill"
-            style={{ transform: `scaleX(${visible ? (skill.level || 0) / 100 : 0})`, transitionDelay: `${delay + 300}ms` }}
-          />
+          <div className="skill-bar">
+            <div
+              className="skill-bar-fill"
+              style={{ transform: `scaleX(${visible ? (skill.level || 0) / 100 : 0})`, transitionDelay: `${delay + 300}ms` }}
+            />
+          </div>
         </div>
         <div className="skill-level">{skill.level}%</div>
       </TiltCard>
@@ -128,13 +129,13 @@ export default function Skills() {
   const names = useMemo(() => skills.map((s) => s.name), [skills]);
 
   return (
-    <SectionWrapper id="skills">
-      <SectionHead index="02" label="skills.json" title={<>The <span className="grad-text">stack</span> I think in.</>} />
+    <SectionWrapper id="skills" title="System Monitor — Skills" app="System Monitor" Icon={MonitorIcon}>
+      <SectionHead index="02" label="skills" title={<>The <span className="grad-text">stack</span> I think in.</>} />
       <div className="skills-layout">
         <SkillSphere names={names} />
         <div ref={ref} className="skills-grid">
           {skills.map((skill, i) => (
-            <SkillCard key={skill.id || skill.name} skill={skill} visible={visible} delay={i * 45} />
+            <SkillCard key={skill.id || skill.name} skill={skill} visible={visible} delay={i * 40} />
           ))}
         </div>
       </div>

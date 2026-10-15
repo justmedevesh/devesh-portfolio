@@ -9,6 +9,8 @@ import remarkGfm from 'remark-gfm';
 import { getPublishedBlogs } from '../data/blogStore';
 import Navbar from './Navbar';
 import Footer from './Footer';
+import { Window } from './SectionWrapper';
+import { DocIcon } from './Icons';
 
 function formatDate(ts) {
   if (!ts) return '';
@@ -71,28 +73,29 @@ export default function BlogPostPage() {
   return (
     <>
       <Navbar />
-      <article style={{ position: 'relative', zIndex: 2, minHeight: '100vh', background: 'var(--bg)' }}>
+      <article className="section" style={{ minHeight: '100vh' }}>
+        <Window title={blog.title} app="Text Editor" Icon={DocIcon}>
 
         {/* Cover image */}
         {blog.coverImage && (
-          <div style={{ width: '100%', maxHeight: 420, overflow: 'hidden' }}>
+          <div style={{ maxWidth: 780, margin: '0 auto 2.5rem', maxHeight: 420, overflow: 'hidden', borderRadius: 12 }}>
             <img
               src={blog.coverImage}
               alt={blog.title}
-              style={{ width: '100%', height: '100%', objectFit: 'cover', opacity: 0.85 }}
+              style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block' }}
             />
           </div>
         )}
 
         {/* Content */}
-        <div style={{ maxWidth: 780, margin: '0 auto', padding: blog.coverImage ? '3rem 1.5rem 5rem' : '8rem 1.5rem 5rem' }}>
+        <div style={{ maxWidth: 780, margin: '0 auto' }}>
 
           {/* Back link */}
           <motion.div initial={{ opacity: 0, x: -10 }} animate={{ opacity: 1, x: 0 }} transition={{ duration: 0.4 }}>
             <Link
               href="/blogs"
-              style={{ fontFamily: 'var(--mono)', fontSize: '0.65rem', color: 'var(--muted)', letterSpacing: '0.1em', textDecoration: 'none', display: 'inline-flex', alignItems: 'center', gap: '0.4rem', marginBottom: '2rem', transition: 'color 0.2s' }}
-              onMouseEnter={e => e.currentTarget.style.color = 'var(--cyan)'}
+              style={{ fontFamily: 'var(--mono)', fontSize: '0.8rem', color: 'var(--muted)', textDecoration: 'none', display: 'inline-flex', alignItems: 'center', gap: '0.4rem', marginBottom: '2rem', transition: 'color 0.2s' }}
+              onMouseEnter={e => e.currentTarget.style.color = 'var(--accent)'}
               onMouseLeave={e => e.currentTarget.style.color = 'var(--muted)'}
             >
               ← BACK TO BLOGS
@@ -104,7 +107,7 @@ export default function BlogPostPage() {
             <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.1 }}
               style={{ display: 'flex', flexWrap: 'wrap', gap: '0.4rem', marginBottom: '1.2rem' }}>
               {blog.tags.map(tag => (
-                <span key={tag} style={{ fontFamily: 'var(--mono)', fontSize: '0.56rem', padding: '0.2rem 0.6rem', border: '1px solid var(--cyan)', color: 'var(--cyan)', letterSpacing: '0.08em', textTransform: 'uppercase' }}>
+                <span key={tag} className="chip">
                   {tag}
                 </span>
               ))}
@@ -121,7 +124,7 @@ export default function BlogPostPage() {
 
           {/* Meta */}
           <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.25 }}
-            style={{ fontFamily: 'var(--mono)', fontSize: '0.65rem', color: 'var(--muted)', marginBottom: '3rem', display: 'flex', flexWrap: 'wrap', gap: '1.5rem', borderBottom: '1px solid var(--border)', paddingBottom: '1.5rem' }}>
+            style={{ fontFamily: 'var(--mono)', fontSize: '0.8rem', color: 'var(--muted)', marginBottom: '3rem', display: 'flex', flexWrap: 'wrap', gap: '1.5rem', borderBottom: '1px solid var(--border)', paddingBottom: '1.5rem' }}>
             <span>✍ {blog.author || 'Devesh Kumar Mandal'}</span>
             {blog.createdAt && <span>📅 {formatDate(blog.createdAt)}</span>}
             {blog.featured && <span style={{ color: 'var(--neon)' }}>⭐ Featured</span>}
@@ -139,16 +142,15 @@ export default function BlogPostPage() {
 
           {/* Bottom nav */}
           <div style={{ marginTop: '4rem', paddingTop: '2rem', borderTop: '1px solid var(--border)', display: 'flex', justifyContent: 'space-between', flexWrap: 'wrap', gap: '1rem' }}>
-            <Link href="/blogs" style={{ fontFamily: 'var(--mono)', fontSize: '0.65rem', color: 'var(--cyan)', border: '1px solid var(--cyan)', padding: '0.6rem 1.5rem', textDecoration: 'none', transition: 'background 0.2s' }}
-              onMouseEnter={e => e.currentTarget.style.background = 'rgba(0,229,255,0.08)'}
-              onMouseLeave={e => e.currentTarget.style.background = 'transparent'}>
+            <Link href="/blogs" className="btn btn-ghost">
               ← All Blogs
             </Link>
-            <button onClick={() => router.push('/')} style={{ fontFamily: 'var(--mono)', fontSize: '0.65rem', color: 'var(--muted)', background: 'none', border: '1px solid var(--border)', padding: '0.6rem 1.5rem', cursor: 'pointer' }}>
+            <button onClick={() => router.push('/')} className="btn btn-ghost">
               Home →
             </button>
           </div>
         </div>
+        </Window>
       </article>
       <Footer />
     </>

@@ -6,6 +6,7 @@ import SectionWrapper, { SectionHead } from './SectionWrapper';
 import TiltCard from './TiltCard';
 import { useReveal } from './useReveal';
 import { getCertificates } from '../data/certificateStore';
+import { AwardIcon, ImageIcon } from './Icons';
 
 const block = (e) => e.preventDefault();
 
@@ -22,16 +23,6 @@ function Preview({ src, alt, className }) {
   );
 }
 
-function BadgeIcon() {
-  return (
-    <svg width="34" height="34" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
-      <circle cx="12" cy="9" r="6" />
-      <path d="M9 14.5 7.5 22l4.5-2.5 4.5 2.5L15 14.5" />
-      <path d="m9.5 9 1.7 1.7L14.5 7.5" />
-    </svg>
-  );
-}
-
 function CertCard({ cert, index, visible, onOpen }) {
   return (
     <div className={`reveal ${visible ? 'is-visible' : ''}`} style={{ '--d': `${index * 110}ms`, height: '100%' }}>
@@ -42,7 +33,7 @@ function CertCard({ cert, index, visible, onOpen }) {
             <span className="cert-zoom">View ↗</span>
           </button>
         ) : (
-          <div className="cert-thumb cert-thumb-empty"><BadgeIcon /></div>
+          <div className="cert-thumb cert-thumb-empty"><span style={{ width: 40, height: 40, display: 'block' }}><AwardIcon /></span></div>
         )}
         <div className="cert-body">
           <div className="blog-meta">
@@ -113,8 +104,8 @@ export default function Certificates() {
   }, []);
 
   return (
-    <SectionWrapper id="certificates">
-      <SectionHead index="05" label="certificates.pem" title={<>Verified <span className="grad-text">upgrades.</span></>} />
+    <SectionWrapper id="certificates" title="~/Pictures/Certificates" app="Image Viewer" Icon={ImageIcon}>
+      <SectionHead index="05" label="certificates" title={<>Verified <span className="grad-text">upgrades.</span></>} />
       <div ref={ref}>
         {loading ? (
           <div className="projects-grid">

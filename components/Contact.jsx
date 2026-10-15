@@ -4,6 +4,7 @@ import SectionWrapper, { SectionHead } from './SectionWrapper';
 import TiltCard from './TiltCard';
 import Reveal from './Reveal';
 import { personal } from '../data/portfolio';
+import { TerminalIcon, GithubIcon, LinkedinIcon } from './Icons';
 
 /** Pure-CSS 3D wireframe globe: meridians rotated around Y, latitudes stacked on Z. */
 function Globe() {
@@ -51,8 +52,8 @@ function ContactItem({ icon, label, children, delay }) {
 
 export default function Contact() {
   return (
-    <SectionWrapper id="contact">
-      <SectionHead index="08" label="contact.sh" title={<>Let&apos;s build something <span className="grad-text">intelligent.</span></>} />
+    <SectionWrapper id="contact" title="ssh devesh@contact" app="Terminal" Icon={TerminalIcon}>
+      <SectionHead index="08" label="contact" title={<>Let&apos;s build something <span className="grad-text">intelligent.</span></>} />
 
       <div className="contact-grid">
         <div className="contact-list">
@@ -61,10 +62,10 @@ export default function Contact() {
               <div key={p}><a href={`tel:${p.replace(/[^+\d]/g, '')}`}>{p}</a></div>
             ))}
           </ContactItem>
-          <ContactItem icon="⌥" label="GitHub" delay={80}>
+          <ContactItem icon={<span style={{ width: 20, height: 20, display: 'block' }}><GithubIcon /></span>} label="GitHub" delay={80}>
             <a href={personal.github} target="_blank" rel="noreferrer">github.com/justmedevesh</a>
           </ContactItem>
-          <ContactItem icon="in" label="LinkedIn" delay={160}>
+          <ContactItem icon={<span style={{ width: 20, height: 20, display: 'block' }}><LinkedinIcon /></span>} label="LinkedIn" delay={160}>
             <a href={personal.linkedin} target="_blank" rel="noreferrer">devesh-kumar-mandal</a>
           </ContactItem>
           <ContactItem icon="◎" label="Location" delay={240}>

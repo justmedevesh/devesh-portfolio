@@ -2,6 +2,8 @@
 import { useState, useEffect } from 'react';
 
 import { motion } from 'framer-motion';
+import { Window } from './SectionWrapper';
+import { DocIcon } from './Icons';
 import { getPublishedBlogs } from '../data/blogStore';
 import BlogCard from './BlogCard';
 
@@ -28,6 +30,7 @@ export default function AllBlogsPage() {
   return (
     <>
       <div className="all-projects-page">
+        <Window title="~/Documents/Blog" app="Files" Icon={DocIcon}>
         {/* Header */}
         <motion.div
           className="all-projects-header"
@@ -99,6 +102,7 @@ export default function AllBlogsPage() {
           </div>
         )}
 
+        </Window>
       </div>
     </>
   );
