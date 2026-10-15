@@ -44,6 +44,18 @@ import {
   deleteEducationEntry,
   seedEducationFromStatic,
 } from '../data/educationStore';
+import {
+  getCertificates,
+  addCertificate,
+  updateCertificate,
+  deleteCertificate,
+  MAX_FILE_BYTES,
+} from '../data/certificateStore';
+import {
+  makeCertificatePreview,
+  downloadCertificate,
+  downloadAllCertificates,
+} from '../data/certificateMedia';
 import { projects as staticProjects, skills as staticSkills, experience as staticExperience, education as staticEducation } from '../data/portfolio';
 import './AdminPanel.css';
 
@@ -674,6 +686,167 @@ function EducationForm({ initial, onSave, onCancel }) {
 }
 
 /* ═══════════════════════════════════════════════════
+   Certificate Form  (Add / Edit)
+   ═══════════════════════════════════════════════════ */
+function formatBytes(n) {
+  if (!n) return '';
+  return n > 1024 * 1024 ? `${(n / 1024 / 1024).toFixed(1)} MB` : `${Math.round(n / 1024)} KB`;
+}
+
+function CertificateForm({ initial, onSave, onCancel }) {
+  const [form, setForm] = useState({
+    title: '',
+    issuer: '',
+    issueDate: '',
+    credentialId: '',
+    credentialUrl: '',
+    skills: [],
+    preview: '',
+    ...initial,
+  });
+  const [file, setFile] = useState(null);
+  const [status, setStatus] = useState('');
+  const [busy, setBusy] = useState(false);
+
+  function handle(field, val) {
+    setForm((prev) => ({ ...prev, [field]: val }));
+  }
+
+  async function handleFile(e) {
+    const picked = e.target.files?.[0];
+    if (!picked) return;
+    if (picked.size > MAX_FILE_BYTES) {
+      setStatus(`⚠ File is too large — max ${MAX_FILE_BYTES / 1024 / 1024} MB.`);
+      e.target.value = '';
+      return;
+    }
+    setFile(picked);
+    setStatus('⏳ Generating watermarked preview...');
+    try {
+      const preview = await makeCertificatePreview(picked);
+      handle('preview', preview);
+      setStatus('✓ Preview ready. Visitors only see this watermarked version.');
+    } catch (err) {
+      handle('preview', '');
+      setStatus(`⚠ Could not create a preview (${err.message}). The file will still be saved privately.`);
+    }
+  }
+
+  async function submit(e) {
+    e.preventDefault();
+    if (!form.title.trim() || !form.issuer.trim()) return;
+    if (!initial?.id && !file) {
+      setStatus('⚠ Please choose the certificate file (PDF or image).');
+      return;
+    }
+    setBusy(true);
+    setStatus(file ? '⏳ Uploading certificate securely...' : '⏳ Saving...');
+    try {
+      await onSave(form, file);
+    } catch (err) {
+      setStatus(`⚠ Save failed: ${err.message}`);
+      setBusy(false);
+    }
+  }
+
+  const isEdit = !!initial?.id;
+
+  return (
+    <div className="admin-form-container">
+      <form className="admin-form" onSubmit={submit}>
+        <div className="form-group">
+          <label>Certificate Title *</label>
+          <input
+            value={form.title}
+            onChange={(e) => handle('title', e.target.value)}
+            placeholder="e.g. Machine Learning Specialization"
+            required
+          />
+        </div>
+
+        <div className="form-row">
+          <div className="form-group">
+            <label>Issued By *</label>
+            <input
+              value={form.issuer}
+              onChange={(e) => handle('issuer', e.target.value)}
+              placeholder="e.g. Coursera · Stanford University"
+              required
+            />
+          </div>
+          <div className="form-group">
+            <label>Issue Date</label>
+            <input
+              value={form.issueDate}
+              onChange={(e) => handle('issueDate', e.target.value)}
+              placeholder="e.g. Mar 2025"
+            />
+          </div>
+        </div>
+
+        <div className="form-row">
+          <div className="form-group">
+            <label>Credential ID</label>
+            <input
+              value={form.credentialId}
+              onChange={(e) => handle('credentialId', e.target.value)}
+              placeholder="Optional"
+            />
+          </div>
+          <div className="form-group">
+            <label>Verification URL</label>
+            <input
+              value={form.credentialUrl}
+              onChange={(e) => handle('credentialUrl', e.target.value)}
+              placeholder="https://... (public link to verify)"
+            />
+          </div>
+        </div>
+
+        <div className="form-group">
+          <label>Skills Covered</label>
+          <TagsInput tags={form.skills} onChange={(skills) => handle('skills', skills)} />
+          <span className="form-help">Press Enter or comma to add a skill</span>
+        </div>
+
+        <div className="form-group">
+          <label>{isEdit ? 'Replace Certificate File (optional)' : 'Certificate File *'}</label>
+          <input type="file" accept="application/pdf,image/png,image/jpeg,image/webp" onChange={handleFile} />
+          <span className="form-help">
+            PDF, PNG, JPG or WEBP · max {MAX_FILE_BYTES / 1024 / 1024} MB · stored privately — only you can download it
+            {isEdit && initial.fileName && !file && <><br />Current file: {initial.fileName} ({formatBytes(initial.fileSize)})</>}
+          </span>
+        </div>
+
+        {status && (
+          <div style={{ fontFamily: 'var(--mono)', fontSize: '0.66rem', color: status.startsWith('⚠') ? '#ff6b6b' : 'var(--cyan)', lineHeight: 1.6 }}>
+            {status}
+          </div>
+        )}
+
+        {form.preview && (
+          <div style={{ border: '1px solid var(--border)', borderLeft: '3px solid var(--cyan)', padding: '1.2rem', background: 'rgba(0,229,255,0.03)' }}>
+            <div style={{ fontFamily: 'var(--mono)', fontSize: '0.62rem', color: 'var(--cyan)', letterSpacing: '0.15em', textTransform: 'uppercase', marginBottom: '0.8rem' }}>
+              👁 Public Preview (what visitors see)
+            </div>
+            <img src={form.preview} alt="Certificate preview" style={{ maxWidth: 420, width: '100%', display: 'block', border: '1px solid var(--border)' }} />
+          </div>
+        )}
+
+        <div className="form-actions">
+          <button type="submit" className="btn-admin primary" disabled={busy}>
+            {busy ? '⏳ Saving...' : isEdit ? '⟳ Update Certificate' : '+ Add Certificate'}
+          </button>
+          <button type="button" className="btn-admin" onClick={onCancel} disabled={busy}>
+            Cancel
+          </button>
+        </div>
+      </form>
+    </div>
+  );
+}
+
+/* ═══════════════════════════════════════════════════
    Blog Form  (Add / Edit) — Rich Editor with Images
    ═══════════════════════════════════════════════════ */
 function BlogForm({ initial, onSave, onCancel }) {
@@ -1151,6 +1324,10 @@ export default function AdminPanel() {
   const [educationList, setEducationList] = useState([]);
   const [eduSeeding, setEduSeeding] = useState(false);
 
+  // Certificates state
+  const [certificatesList, setCertificatesList] = useState([]);
+  const [certDownloading, setCertDownloading] = useState(null); // cert id or 'all'
+
   // Firebase Auth listener — auto-detects login state
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, (user) => {
@@ -1211,6 +1388,16 @@ export default function AdminPanel() {
     }
   }
 
+  // Load certificates
+  async function loadCertificates() {
+    try {
+      const certs = await getCertificates();
+      setCertificatesList(certs);
+    } catch (err) {
+      console.error('Failed to load certificates:', err);
+    }
+  }
+
   useEffect(() => {
     if (authed) {
       loadProjects();
@@ -1218,6 +1405,7 @@ export default function AdminPanel() {
       loadSkills();
       loadExperiences();
       loadEducation();
+      loadCertificates();
     }
   }, [authed]);
 
@@ -1430,8 +1618,58 @@ export default function AdminPanel() {
     setEduSeeding(false);
   }
 
+  // Certificate handlers — errors propagate to CertificateForm, which shows them
+  async function handleAddCertificate(form, file) {
+    await addCertificate(form, file);
+    await loadCertificates();
+    setView('list');
+    setToast('Certificate added successfully!');
+  }
+
+  async function handleUpdateCertificate(form, file) {
+    await updateCertificate(editTarget.id, form, file);
+    await loadCertificates();
+    setView('list');
+    setEditTarget(null);
+    setToast('Certificate updated successfully!');
+  }
+
+  async function handleDeleteCertificate() {
+    try {
+      await deleteCertificate(deleteTarget.id);
+      setToast('Certificate deleted.');
+    } catch (err) {
+      setToast(`Delete failed: ${err.message}`);
+    }
+    await loadCertificates();
+    setDeleteTarget(null);
+  }
+
+  async function handleDownloadCertificate(cert) {
+    setCertDownloading(cert.id);
+    try {
+      await downloadCertificate(cert);
+    } catch (err) {
+      setToast(`Download failed: ${err.message}`);
+    }
+    setCertDownloading(null);
+  }
+
+  async function handleDownloadAllCertificates() {
+    setCertDownloading('all');
+    try {
+      const count = await downloadAllCertificates(certificatesList);
+      setToast(`Downloaded ${count} certificate${count === 1 ? '' : 's'} as ZIP.`);
+    } catch (err) {
+      setToast(`Download failed: ${err.message}`);
+    }
+    setCertDownloading(null);
+  }
+
   function handleDeleteConfirm() {
-    if (deleteType === 'blog') {
+    if (deleteType === 'certificate') {
+      handleDeleteCertificate();
+    } else if (deleteType === 'blog') {
       handleDeleteBlog();
     } else if (deleteType === 'skill') {
       handleDeleteSkill();
@@ -1614,6 +1852,13 @@ export default function AdminPanel() {
               <p>Education</p>
             </div>
           </div>
+          <div className="admin-stat-card">
+            <div className="admin-stat-icon">🏅</div>
+            <div className="admin-stat-info">
+              <h3>{certificatesList.length}</h3>
+              <p>Certificates</p>
+            </div>
+          </div>
         </div>
 
         {/* Tab switcher */}
@@ -1647,6 +1892,12 @@ export default function AdminPanel() {
             onClick={() => switchTab('education')}
           >
             🎓 Education
+          </button>
+          <button
+            className={`admin-tab ${activeTab === 'certificates' ? 'active' : ''}`}
+            onClick={() => switchTab('certificates')}
+          >
+            🏅 Certificates
           </button>
         </div>
 
@@ -2311,6 +2562,120 @@ export default function AdminPanel() {
             </div>
           </>
         )}
+
+        {/* ═══ CERTIFICATES TAB ═══ */}
+        {activeTab === 'certificates' && view === 'list' && (
+          <>
+            <div className="admin-section-header">
+              <div>
+                <div className="admin-section-label">// manage</div>
+                <h2>All Certificates</h2>
+              </div>
+              <div style={{ display: 'flex', gap: '0.6rem', flexWrap: 'wrap' }}>
+                {certificatesList.some((c) => c.chunkCount) && (
+                  <button
+                    className="btn-admin"
+                    onClick={handleDownloadAllCertificates}
+                    disabled={certDownloading === 'all'}
+                    style={{ borderColor: 'var(--neon)', color: 'var(--neon)' }}
+                  >
+                    {certDownloading === 'all' ? '⏳ Preparing ZIP...' : '⬇ Download All (.zip)'}
+                  </button>
+                )}
+                <button className="btn-admin primary" onClick={() => setView('add')}>
+                  + Add Certificate
+                </button>
+              </div>
+            </div>
+
+            <p className="form-help" style={{ marginBottom: '1.2rem' }}>
+              🔒 Original files are private — only you can download them here. Visitors see a watermarked preview only.
+            </p>
+
+            {certificatesList.length === 0 ? (
+              <div className="admin-empty">
+                <div className="empty-icon">🏅</div>
+                <h3>No certificates yet</h3>
+                <p>Click "Add Certificate" to upload your first one (PDF or image).</p>
+              </div>
+            ) : (
+              <div className="admin-project-list">
+                {certificatesList.map((cert) => (
+                  <div key={cert.id} className="admin-project-row">
+                    {cert.preview && (
+                      <img
+                        src={cert.preview}
+                        alt=""
+                        style={{ width: 84, height: 63, objectFit: 'cover', objectPosition: 'top', border: '1px solid var(--border)', flexShrink: 0 }}
+                      />
+                    )}
+                    <div className="admin-project-info">
+                      <h3>{cert.title}</h3>
+                      <p>{cert.issuer}{cert.issueDate && ` · ${cert.issueDate}`}</p>
+                      <div className="admin-project-meta">
+                        {cert.fileName
+                          ? <span className="badge badge-admin">📎 {cert.fileName} · {formatBytes(cert.fileSize)}</span>
+                          : <span className="badge badge-draft">No file</span>}
+                        {(cert.skills || []).map((s) => <span key={s} className="tag">{s}</span>)}
+                      </div>
+                    </div>
+                    <div className="admin-project-actions">
+                      {cert.chunkCount > 0 && (
+                        <button
+                          className="btn-admin small"
+                          onClick={() => handleDownloadCertificate(cert)}
+                          disabled={certDownloading === cert.id}
+                        >
+                          {certDownloading === cert.id ? '⏳' : '⬇ Download'}
+                        </button>
+                      )}
+                      <button className="btn-admin small" onClick={() => startEdit(cert)}>
+                        Edit
+                      </button>
+                      <button className="btn-admin small danger" onClick={() => { setDeleteTarget(cert); setDeleteType('certificate'); }}>
+                        Delete
+                      </button>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
+          </>
+        )}
+
+        {activeTab === 'certificates' && view === 'add' && (
+          <>
+            <button className="btn-admin back" onClick={() => setView('list')}>
+              ← Back to Certificates
+            </button>
+            <div style={{ marginTop: '1rem' }}>
+              <div className="admin-section-label">// new certificate</div>
+              <h2 style={{ fontSize: '1.3rem', fontWeight: 800, marginBottom: '1.5rem' }}>
+                Add a Certificate
+              </h2>
+              <CertificateForm onSave={handleAddCertificate} onCancel={() => setView('list')} />
+            </div>
+          </>
+        )}
+
+        {activeTab === 'certificates' && view === 'edit' && editTarget && (
+          <>
+            <button className="btn-admin back" onClick={() => { setView('list'); setEditTarget(null); }}>
+              ← Back to Certificates
+            </button>
+            <div style={{ marginTop: '1rem' }}>
+              <div className="admin-section-label">// edit certificate</div>
+              <h2 style={{ fontSize: '1.3rem', fontWeight: 800, marginBottom: '1.5rem' }}>
+                Edit: {editTarget.title}
+              </h2>
+              <CertificateForm
+                initial={editTarget}
+                onSave={handleUpdateCertificate}
+                onCancel={() => { setView('list'); setEditTarget(null); }}
+              />
+            </div>
+          </>
+        )}
       </div>
 
       {/* Toast */}
@@ -2320,7 +2685,7 @@ export default function AdminPanel() {
       {deleteTarget && (
         <DeleteModal
           title={deleteTarget.title || deleteTarget.name || deleteTarget.role || deleteTarget.degree}
-          itemType={deleteType === 'blog' ? 'Blog Post' : deleteType === 'skill' ? 'Skill' : deleteType === 'experience' ? 'Experience' : deleteType === 'education' ? 'Education' : 'Project'}
+          itemType={deleteType === 'certificate' ? 'Certificate' : deleteType === 'blog' ? 'Blog Post' : deleteType === 'skill' ? 'Skill' : deleteType === 'experience' ? 'Experience' : deleteType === 'education' ? 'Education' : 'Project'}
           onConfirm={handleDeleteConfirm}
           onCancel={() => setDeleteTarget(null)}
         />

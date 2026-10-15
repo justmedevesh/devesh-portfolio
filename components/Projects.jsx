@@ -24,7 +24,7 @@ export default function Projects() {
 
   return (
     <SectionWrapper id="projects">
-      <SectionHead index="05" label="projects.dir" title={<>Things I&apos;ve <span className="grad-text">built.</span></>} />
+      <SectionHead index="06" label="projects.dir" title={<>Things I&apos;ve <span className="grad-text">built.</span></>} />
 
       <div ref={ref}>
       {loading ? (

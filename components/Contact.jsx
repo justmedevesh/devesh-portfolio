@@ -52,7 +52,7 @@ function ContactItem({ icon, label, children, delay }) {
 export default function Contact() {
   return (
     <SectionWrapper id="contact">
-      <SectionHead index="07" label="contact.sh" title={<>Let&apos;s build something <span className="grad-text">intelligent.</span></>} />
+      <SectionHead index="08" label="contact.sh" title={<>Let&apos;s build something <span className="grad-text">intelligent.</span></>} />
 
       <div className="contact-grid">
         <div className="contact-list">

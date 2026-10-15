@@ -32,7 +32,7 @@ export default function Blog() {
 
   return (
     <SectionWrapper id="blog">
-      <SectionHead index="06" label="blog.md" title={<>Notes from the <span className="grad-text">lab.</span></>} />
+      <SectionHead index="07" label="blog.md" title={<>Notes from the <span className="grad-text">lab.</span></>} />
 
       {loading ? (
         <div className="projects-grid">

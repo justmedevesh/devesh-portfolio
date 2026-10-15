@@ -4,7 +4,7 @@ import { useState, useEffect } from 'react';
 import { usePathname, useRouter } from 'next/navigation';
 import { motion, AnimatePresence } from 'framer-motion';
 
-const links = ['About', 'Skills', 'Experience', 'Education', 'Projects', 'Blog', 'Contact'];
+const links = ['About', 'Skills', 'Experience', 'Education', 'Certificates', 'Projects', 'Blog', 'Contact'];
 
 /** Live Kathmandu time — a small "this machine is running" detail. */
 function KtmClock() {
@@ -41,7 +41,7 @@ export default function Navbar() {
 
   // Close menu on resize to desktop
   useEffect(() => {
-    const onResize = () => { if (window.innerWidth > 860) setMenuOpen(false); };
+    const onResize = () => { if (window.innerWidth > 1024) setMenuOpen(false); };
     window.addEventListener('resize', onResize);
     return () => window.removeEventListener('resize', onResize);
   }, []);
